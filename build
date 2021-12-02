@@ -1,0 +1,2 @@
+#!/bin/bash
+npx babel --watch presrc --out-dir ./src  --presets react-app/prod
