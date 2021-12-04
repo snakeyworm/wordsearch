@@ -1,1 +1,1 @@
-(()=>{"use strict";ReactDOM.render(React.createElement((function(){return React.createElement("h1",null,"Hello World!")}),null),document.querySelector("#root"))})();
+(()=>{"use strict";ReactDOM.render(React.createElement((function(){return React.createElement("h1",null,"Hello")}),null),document.querySelector("#root"))})();

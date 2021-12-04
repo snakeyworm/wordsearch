@@ -1,4 +1,4 @@
 
-import Test from "./Board.js";
+import Test from "./Test";
 
 ReactDOM.render(React.createElement(Test, null), document.querySelector("#root"));
