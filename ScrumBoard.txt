@@ -1,14 +1,15 @@
 
 To-Do:
 
-Learn Wordnik API
-
-Implement game without UI
+Implement random word generation with Wordnik API
+Handle user input
+Add UI to game logic
 
 In Progress:
 
-Implement Skeleton code
-Clean up remote repository
-    TODO Fix git error syncing changes to update remote repository structure
+Implement game logic without UI
 
 Done:
+
+Implement Skeleton code
+Clean up remote repo
