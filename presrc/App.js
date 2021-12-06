@@ -1,16 +1,20 @@
 
 // wordsearch v0.0.1
 
-import Board from "./Board";
-import WordField from "./WordField";
+// TODO Reavaluate portable layout implementation(Maybe incorporate window.innerHeight)
+
+import React from "react"
+import ReactDOM from "react-dom"
+import Board from "./Board"
+import WordField from "./WordField"
 
 // App container
 function App() {
 
     return ( <div>
         <WordField />
-        <Board />
-    </div> );
+        <Board words={[ "ice", "Bible", "God", "computer", "hockey", "chocolate" ]} />
+    </div> )
 
 }
 

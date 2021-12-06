@@ -1,11 +1,13 @@
 
+import React from "react"
+
 // Component for word field
-function WordField() {
+function WordField( props ) {
 
     return ( <div>
 
 
-    </div> );
+    </div> )
 
 }
 
