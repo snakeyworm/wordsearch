@@ -1,6 +1,7 @@
 
 To-Do:
 
+Add windows executable
 Implement random word generation with Wordnik API
 Handle user input
 Add UI to game logic
