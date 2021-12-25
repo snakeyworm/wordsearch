@@ -1,6 +1,4 @@
 
-// TODO Bug: Board until window resize
-
 import React, { useState, useRef, useEffect, } from "react"
 
 const LETTER_SIZE = 15
@@ -21,7 +19,7 @@ function Board( props ) {
      */
 
     let [ board, setBoard ] = useState( [] ) // Board data
-    let [ boardStyle, setBoardStyle ] = useState( {} );
+    let [ boardStyle, setBoardStyle ] = useState( boardStyle );
     let size = 0 // Width and height of board
     
     useEffect( () => {
