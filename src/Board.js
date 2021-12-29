@@ -21,17 +21,15 @@ var boardStyle = {
     var _useState = useState([]),
         _useState2 = _slicedToArray(_useState, 2),
         board = _useState2[0],
-        setBoard = _useState2[1]; // Board data
+        setBoard = _useState2[1]; // Board data TODO This should not be a state
 
 
-    var _useState3 = useState(boardStyle),
-        _useState4 = _slicedToArray(_useState3, 2),
-        boardStyle = _useState4[0],
-        setBoardStyle = _useState4[1];
-
+    var boardDOM = useRef(null);
     var size = 0; // Width and height of board
 
-    useEffect(function () {
+    var populateBoard = function populateBoard() {
+
+        board = [];
 
         // Calculate board size
         props.words.forEach(function (i) {
@@ -40,23 +38,36 @@ var boardStyle = {
 
         // Populate board
         for (var i = 0; i < size; i++) {
+            // Row
             for (var _i = 0; _i < size + 1; _i++) {
+                // Column
                 board.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
             }
             board.push(React.createElement("br", null)); // Insert break at end of row
         }
 
-        // Resize font
+        console.log(board);
+        setBoard(board);
+    };
+
+    useEffect(function () {
+
+        populateBoard();
+
+        // Adjust font on window resize
         window.onresize = function () {
-            setBoardStyle(Object.assign({}, boardStyle, {
-                fontSize: window.innerWidth / LETTER_SIZE
-            }));
+            console.log("window resize");
+            console.log(boardDOM.current.style.fontSize);
+            boardDOM.current.style.fontSize = window.innerWidth / LETTER_SIZE;
         };
-    }, [props.words]);
+    }, []);
+
+    // Populate board when new words are received
+    useEffect(populateBoard, [props.words]);
 
     return React.createElement(
         "div",
-        { style: boardStyle },
+        { ref: boardDOM, style: boardStyle },
         board
     );
 }

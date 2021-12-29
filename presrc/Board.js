@@ -18,20 +18,22 @@ function Board( props ) {
      * 
      */
 
-    let [ board, setBoard ] = useState( [] ) // Board data
-    let [ boardStyle, setBoardStyle ] = useState( boardStyle );
+    let [ board, setBoard ] = useState( [] ) // Board data TODO This should not be a state
+    let boardDOM = useRef( null )
     let size = 0 // Width and height of board
     
-    useEffect( () => {
+    let populateBoard = () => {
+
+        board = []
 
         // Calculate board size
         props.words.forEach( i => {
             size = i.length > size ? i.length : size
         } )
-
+    
         // Populate board
-        for ( let i=0; i < size; i++ ) {
-            for ( let i=0; i < size+1; i++ ) {
+        for ( let i=0; i < size; i++ ) { // Row
+            for ( let i=0; i < size+1; i++ ) { // Column
                 board.push(
                     String.fromCharCode(
                         65 + ( Math.floor( Math.random() * 25 ) )
@@ -41,17 +43,28 @@ function Board( props ) {
             board.push( <br /> ) // Insert break at end of row
         }
 
-        // Resize font
-        window.onresize = () => {
-            setBoardStyle( {
-                ...boardStyle,
-                fontSize: window.innerWidth/LETTER_SIZE,
-            } )
-        }
+        console.log( board )
+        setBoard( board )
         
-    }, [ props.words ] );
+    }
 
-    return ( <div style={boardStyle}>
+    useEffect( () => {
+
+        populateBoard()
+        
+        // Adjust font on window resize
+        window.onresize = () => {
+            console.log( "window resize" )
+            console.log( boardDOM.current.style.fontSize )
+            boardDOM.current.style.fontSize = window.innerWidth/LETTER_SIZE
+        }
+
+    }, [] )
+
+    // Populate board when new words are received
+    useEffect( populateBoard, [ props.words ] );
+
+    return ( <div ref={boardDOM} style={boardStyle}>
         {board}
     </div> );
 
