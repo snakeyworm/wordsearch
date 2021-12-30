@@ -1,7 +1,13 @@
 
 import React, { useState, useRef, useEffect, } from "react"
 
+// Constants
+
+const BOARD_SIZE = 12
+const BOARD_AREA = BOARD_SIZE*BOARD_SIZE
 const LETTER_SIZE = 15
+
+const INVALID_WORDS_MSG = "Invalid words provided:"
 
 // Style
 const boardStyle = {
@@ -18,22 +24,33 @@ function Board( props ) {
      * 
      */
 
-    let [ board, setBoard ] = useState( [] ) // Board data TODO This should not be a state
+    let [ board, setBoard ] = useState( [] ) // Board data
     let boardDOM = useRef( null )
-    let size = 0 // Width and height of board
     
+    // TODO Populate board with words provided not random letters
     let populateBoard = () => {
 
-        board = []
+        // Prop checking
 
-        // Calculate board size
-        props.words.forEach( i => {
-            size = i.length > size ? i.length : size
+        let requiredArea = 0;
+
+        // Ensure words are correct length
+        props.words.forEach( i => { 
+            if ( i.length > 12 )
+                throw new Error( `${INVALID_WORDS_MSG} word length must be <= 12` )
+            requiredArea += i.length
         } )
-    
+
+        // Ensure the board can fit the provided words
+        if ( requiredArea > BOARD_AREA )
+            throw new Error( `${INVALID_WORDS_MSG} total length of words must be less than ${BOARD_AREA}` )
+
+        // Clear board
+        board = []
+        
         // Populate board
-        for ( let i=0; i < size; i++ ) { // Row
-            for ( let i=0; i < size+1; i++ ) { // Column
+        for ( let i=0; i < BOARD_SIZE; i++ ) { // Row
+            for ( let i=0; i < BOARD_SIZE; i++ ) { // Column
                 board.push(
                     String.fromCharCode(
                         65 + ( Math.floor( Math.random() * 25 ) )
@@ -43,7 +60,6 @@ function Board( props ) {
             board.push( <br /> ) // Insert break at end of row
         }
 
-        console.log( board )
         setBoard( board )
         
     }
@@ -54,6 +70,7 @@ function Board( props ) {
         
         // Adjust font on window resize
         window.onresize = () => {
+            // TODO Fix this
             console.log( "window resize" )
             console.log( boardDOM.current.style.fontSize )
             boardDOM.current.style.fontSize = window.innerWidth/LETTER_SIZE
