@@ -6,14 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx babel --watch presrc --out-dir ./src  --presets react-app/prod",
-    "bundle": "npx webpack"
+    "bundle-dev": "npx webpack --config ./webpack.dev.js",
+    "bundle-prod": "npx webpack --config ./webpack.prod.js"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "webpack-merge": "^5.8.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

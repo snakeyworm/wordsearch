@@ -41,7 +41,7 @@ var boardStyle = {
 
         // Ensure words are correct length
         props.words.forEach(function (i) {
-            if (i.length > 12) throw new Error(INVALID_WORDS_MSG + " word length must be <= 12");
+            if (i.length > BOARD_SIZE) throw new Error(INVALID_WORDS_MSG + " word length must be <= " + BOARD_SIZE);
             requiredArea += i.length;
         });
 
@@ -54,11 +54,32 @@ var boardStyle = {
         // Populate board
         for (var i = 0; i < BOARD_SIZE; i++) {
             // Row
+            var row = [];
             for (var _i = 0; _i < BOARD_SIZE; _i++) {
                 // Column
-                board.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
+                row.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
             }
-            board.push(React.createElement("br", null)); // Insert break at end of row
+            row.push(React.createElement("br", null)); // Insert break at end of row
+            board.push(row);
+        }
+
+        // Insert each word
+        for (var _i2 = 0; _i2 < props.words.length; _i2++) {
+
+            var word = props.words[_i2];
+            var _row = Math.floor(Math.random() * 12);
+            var column = Math.floor(Math.random() * 12 - word.length);
+
+            // Insert accross a row or a column
+            if (Math.floor(Math.random() * 2))
+                // Row
+                for (var x = 0; x < word.length; x++) {
+                    board[_row + x][column] = word[x];
+                } else
+                // Column
+                for (var y = 0; y < word.length; y++) {
+                    board[_row][column + y] = word[y];
+                }
         }
 
         setBoard(board);

@@ -36,8 +36,8 @@ function Board( props ) {
 
         // Ensure words are correct length
         props.words.forEach( i => { 
-            if ( i.length > 12 )
-                throw new Error( `${INVALID_WORDS_MSG} word length must be <= 12` )
+            if ( i.length > BOARD_SIZE )
+                throw new Error( `${INVALID_WORDS_MSG} word length must be <= ${BOARD_SIZE}` )
             requiredArea += i.length
         } )
 
@@ -50,14 +50,35 @@ function Board( props ) {
         
         // Populate board
         for ( let i=0; i < BOARD_SIZE; i++ ) { // Row
+            let row = []
             for ( let i=0; i < BOARD_SIZE; i++ ) { // Column
-                board.push(
+                row.push(
                     String.fromCharCode(
                         65 + ( Math.floor( Math.random() * 25 ) )
                     )
                 );
             }
-            board.push( <br /> ) // Insert break at end of row
+            row.push( <br /> ) // Insert break at end of row
+            board.push( row )
+        }
+
+        // Insert each word
+        for ( let i=0; i < props.words.length; i++ ) {
+            
+            let word = props.words[i]
+            let row =  Math.floor( Math.random() * 12 )
+            let column = Math.floor( Math.random() * 12 - word.length )
+
+            // Insert accross a row or a column
+            if ( Math.floor( Math.random() * 2 ) )
+                // Row
+                for ( let x=0; x < word.length; x++ )
+                    board[ row + x ][ column ] = word[x]
+            else
+                // Column
+                for ( let y=0; y < word.length; y++ ) 
+                    board[ row ][ column + y ] = word[y]
+
         }
 
         setBoard( board )
