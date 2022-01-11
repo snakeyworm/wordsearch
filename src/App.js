@@ -1,8 +1,6 @@
 
 // wordsearch v0.0.1
 
-// TODO Revaluate portable layout implementation(Maybe incorporate window.innerHeight)
-
 import React from "react";
 import ReactDOM from "react-dom";
 import Board from "./Board";

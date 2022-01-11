@@ -5,13 +5,15 @@ import React, { useState, useRef, useEffect, } from "react"
 
 const BOARD_SIZE = 12
 const BOARD_AREA = BOARD_SIZE*BOARD_SIZE
-const LETTER_SIZE = 15
+const FONT_MULTIPLIER = 0.05;
 
 const INVALID_WORDS_MSG = "Invalid words provided:"
 
 // Style
+// TODO Position the board at start and resize
 const boardStyle = {
-    fontSize: window.innerWidth/LETTER_SIZE,
+    position: "absolute",
+    fontSize: window.innerWidth*FONT_MULTIPLIER,
 }
 
 // Component for game board
@@ -25,9 +27,9 @@ function Board( props ) {
      */
 
     let [ board, setBoard ] = useState( [] ) // Board data
-    let boardDOM = useRef( null )
+    let [ boardStyle, setBoardStyle ] = useState( boardStyle )
     
-    // TODO Populate board with words provided not random letters
+    // TODO Ensure words do not overwrite each other
     let populateBoard = () => {
 
         // Prop checking
@@ -66,18 +68,26 @@ function Board( props ) {
         for ( let i=0; i < props.words.length; i++ ) {
             
             let word = props.words[i]
-            let row =  Math.floor( Math.random() * 12 )
-            let column = Math.floor( Math.random() * 12 - word.length )
+            let accrossOrDown = Math.floor( Math.random() * 2 ) // Wether word is horizontal or vertical
+            let row
+            let column
 
             // Insert accross a row or a column
-            if ( Math.floor( Math.random() * 2 ) )
-                // Row
-                for ( let x=0; x < word.length; x++ )
-                    board[ row + x ][ column ] = word[x]
-            else
-                // Column
-                for ( let y=0; y < word.length; y++ ) 
-                    board[ row ][ column + y ] = word[y]
+            if ( accrossOrDown ) {
+                row = Math.floor( Math.random() * 12 )
+                column = Math.floor( Math.random() * ( 12 - word.length + 1 ) )
+                // Across
+                for ( let x=0; x < word.length; x++ ) {
+                    board[ row ][ column + x ] = word[x].toUpperCase()
+                }
+            } else {
+                row = Math.floor( Math.random() * ( 12 - word.length + 1 ) )
+                column = Math.floor( Math.random() * 12 )
+                // Down
+                for ( let y=0; y < word.length; y++ ) {
+                    board[ row + y ][ column ] = word[y].toUpperCase()
+                }
+            }
 
         }
 
@@ -88,13 +98,24 @@ function Board( props ) {
     useEffect( () => {
 
         populateBoard()
+
+        // Position board
+        setBoardStyle( {
+            ...boardStyle,
+            left: window.innerWidth * 0.5,
+            top: window.innerWidth * 0.5,
+        } )
         
         // Adjust font on window resize
         window.onresize = () => {
-            // TODO Fix this
-            console.log( "window resize" )
-            console.log( boardDOM.current.style.fontSize )
-            boardDOM.current.style.fontSize = window.innerWidth/LETTER_SIZE
+            // TODO Figure out how to do this with a reference 
+            setBoardStyle( {
+                ...boardStyle,
+                left: window.innerWidth * 0.5,
+                top: window.innerWidth * 0.5,
+                fontSize: window.innerWidth * FONT_MULTIPLIER,
+
+            } )
         }
 
     }, [] )
@@ -102,7 +123,7 @@ function Board( props ) {
     // Populate board when new words are received
     useEffect( populateBoard, [ props.words ] );
 
-    return ( <div ref={boardDOM} style={boardStyle}>
+    return ( <div style={boardStyle}>
         {board}
     </div> );
 

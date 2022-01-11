@@ -6,13 +6,15 @@ import React, { useState, useRef, useEffect } from "react";
 
 var BOARD_SIZE = 12;
 var BOARD_AREA = BOARD_SIZE * BOARD_SIZE;
-var LETTER_SIZE = 15;
+var FONT_MULTIPLIER = 0.05;
 
 var INVALID_WORDS_MSG = "Invalid words provided:";
 
 // Style
+// TODO Position the board at start and resize
 var boardStyle = {
-    fontSize: window.innerWidth / LETTER_SIZE
+    position: "absolute",
+    fontSize: window.innerWidth * FONT_MULTIPLIER
 
     // Component for game board
 };function Board(props) {
@@ -30,9 +32,14 @@ var boardStyle = {
         setBoard = _useState2[1]; // Board data
 
 
-    var boardDOM = useRef(null);
+    var _useState3 = useState(boardStyle),
+        _useState4 = _slicedToArray(_useState3, 2),
+        boardStyle = _useState4[0],
+        setBoardStyle = _useState4[1];
 
-    // TODO Populate board with words provided not random letters
+    // TODO Ensure words do not overwrite each other
+
+
     var populateBoard = function populateBoard() {
 
         // Prop checking
@@ -67,19 +74,26 @@ var boardStyle = {
         for (var _i2 = 0; _i2 < props.words.length; _i2++) {
 
             var word = props.words[_i2];
-            var _row = Math.floor(Math.random() * 12);
-            var column = Math.floor(Math.random() * 12 - word.length);
+            var accrossOrDown = Math.floor(Math.random() * 2); // Wether word is horizontal or vertical
+            var _row = void 0;
+            var column = void 0;
 
             // Insert accross a row or a column
-            if (Math.floor(Math.random() * 2))
-                // Row
+            if (accrossOrDown) {
+                _row = Math.floor(Math.random() * 12);
+                column = Math.floor(Math.random() * (12 - word.length + 1));
+                // Across
                 for (var x = 0; x < word.length; x++) {
-                    board[_row + x][column] = word[x];
-                } else
-                // Column
-                for (var y = 0; y < word.length; y++) {
-                    board[_row][column + y] = word[y];
+                    board[_row][column + x] = word[x].toUpperCase();
                 }
+            } else {
+                _row = Math.floor(Math.random() * (12 - word.length + 1));
+                column = Math.floor(Math.random() * 12);
+                // Down
+                for (var y = 0; y < word.length; y++) {
+                    board[_row + y][column] = word[y].toUpperCase();
+                }
+            }
         }
 
         setBoard(board);
@@ -89,12 +103,21 @@ var boardStyle = {
 
         populateBoard();
 
+        // Position board
+        setBoardStyle(Object.assign({}, boardStyle, {
+            left: window.innerWidth * 0.5,
+            top: window.innerWidth * 0.5
+        }));
+
         // Adjust font on window resize
         window.onresize = function () {
-            // TODO Fix this
-            console.log("window resize");
-            console.log(boardDOM.current.style.fontSize);
-            boardDOM.current.style.fontSize = window.innerWidth / LETTER_SIZE;
+            // TODO Figure out how to do this with a reference 
+            setBoardStyle(Object.assign({}, boardStyle, {
+                left: window.innerWidth * 0.5,
+                top: window.innerWidth * 0.5,
+                fontSize: window.innerWidth * FONT_MULTIPLIER
+
+            }));
         };
     }, []);
 
@@ -103,7 +126,7 @@ var boardStyle = {
 
     return React.createElement(
         "div",
-        { ref: boardDOM, style: boardStyle },
+        { style: boardStyle },
         board
     );
 }
