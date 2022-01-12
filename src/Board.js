@@ -1,6 +1,6 @@
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 // Constants
 
@@ -11,9 +11,11 @@ var FONT_MULTIPLIER = 0.05;
 var INVALID_WORDS_MSG = "Invalid words provided:";
 
 // Style
-// TODO Position the board at start and resize
-var boardStyle = {
-    position: "absolute",
+// TODO Fix board positioning
+var startBoardStyle = {
+    position: "fixed",
+    left: window.innerWidth * 0.5,
+    top: window.innerWidth * 0.5,
     fontSize: window.innerWidth * FONT_MULTIPLIER
 
     // Component for game board
@@ -32,7 +34,7 @@ var boardStyle = {
         setBoard = _useState2[1]; // Board data
 
 
-    var _useState3 = useState(boardStyle),
+    var _useState3 = useState(startBoardStyle),
         _useState4 = _slicedToArray(_useState3, 2),
         boardStyle = _useState4[0],
         setBoardStyle = _useState4[1];
@@ -103,20 +105,13 @@ var boardStyle = {
 
         populateBoard();
 
-        // Position board
-        setBoardStyle(Object.assign({}, boardStyle, {
-            left: window.innerWidth * 0.5,
-            top: window.innerWidth * 0.5
-        }));
-
         // Adjust font on window resize
         window.onresize = function () {
             // TODO Figure out how to do this with a reference 
-            setBoardStyle(Object.assign({}, boardStyle, {
+            setBoardStyle(Object.assign({}, startBoardStyle, {
                 left: window.innerWidth * 0.5,
                 top: window.innerWidth * 0.5,
                 fontSize: window.innerWidth * FONT_MULTIPLIER
-
             }));
         };
     }, []);

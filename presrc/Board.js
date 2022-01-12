@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect, } from "react"
+import React, { useState, useEffect, } from "react"
 
 // Constants
 
@@ -10,10 +10,12 @@ const FONT_MULTIPLIER = 0.05;
 const INVALID_WORDS_MSG = "Invalid words provided:"
 
 // Style
-// TODO Position the board at start and resize
-const boardStyle = {
-    position: "absolute",
-    fontSize: window.innerWidth*FONT_MULTIPLIER,
+// TODO Fix board positioning
+const startBoardStyle = {
+    position: "fixed",
+    left: window.innerWidth * 0.5,
+    top: window.innerWidth * 0.5,
+    fontSize: window.innerWidth * FONT_MULTIPLIER,
 }
 
 // Component for game board
@@ -27,7 +29,7 @@ function Board( props ) {
      */
 
     let [ board, setBoard ] = useState( [] ) // Board data
-    let [ boardStyle, setBoardStyle ] = useState( boardStyle )
+    let [ boardStyle, setBoardStyle ] = useState( startBoardStyle )
     
     // TODO Ensure words do not overwrite each other
     let populateBoard = () => {
@@ -99,22 +101,14 @@ function Board( props ) {
 
         populateBoard()
 
-        // Position board
-        setBoardStyle( {
-            ...boardStyle,
-            left: window.innerWidth * 0.5,
-            top: window.innerWidth * 0.5,
-        } )
-        
         // Adjust font on window resize
         window.onresize = () => {
             // TODO Figure out how to do this with a reference 
             setBoardStyle( {
-                ...boardStyle,
+                ...startBoardStyle,
                 left: window.innerWidth * 0.5,
                 top: window.innerWidth * 0.5,
                 fontSize: window.innerWidth * FONT_MULTIPLIER,
-
             } )
         }
 
