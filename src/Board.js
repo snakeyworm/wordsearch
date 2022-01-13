@@ -45,7 +45,7 @@ function Board(props) {
 
     var boardDOM = useRef(null);
 
-    // TODO Ensure words do not overwrite each other
+    // TODO Fix word insertion
     var populateBoard = function populateBoard() {
 
         // Prop checking
@@ -54,7 +54,7 @@ function Board(props) {
 
         // Ensure words are correct length
         props.words.forEach(function (i) {
-            if (i.length > BOARD_SIZE) throw new Error(INVALID_WORDS_MSG + " word length must be <= " + BOARD_SIZE);
+            if (i.length > BOARD_SIZE || i.length === 1) throw new Error(INVALID_WORDS_MSG + " word length must be <= " + BOARD_SIZE + " and >= 1");
             requiredArea += i.length;
         });
 
@@ -98,6 +98,7 @@ function Board(props) {
         var x = void 0;
         var y = void 0;
 
+        // Set x and y values based on word axis
         if (accrossOrDown) {
             x = b;
             y = a;
@@ -112,15 +113,39 @@ function Board(props) {
     // Insert given word
     var insertWord = function insertWord(word) {
 
+        word = word.toUpperCase();
+
+        // Find coordinates where word would fit
         while (true) {
 
+            var intersect = false;
             var coords1 = generateRandomCoords(word);
 
+            // Check for intersections with current wotrds
             for (var j = 0; j < wordCoords.current.length; j++) {
-
                 var coords2 = wordCoords.current[j];
 
-                if (doIntersect(coords1[0], coords1[1], coords2[0], coords2[1])) {}
+                // Retry if intersection found
+                if (doIntersect(coords1[0], coords1[1], coords2[0], coords2[1])) {
+                    intersect = true;
+                    break;
+                }
+            }
+
+            // Insert word if space is free
+            if (!intersect) {
+
+                wordCoords.current.push(coords1);
+
+                if (coords1[0].x === coords1[1].x)
+                    // Insert word accross
+                    for (var i = 0; i < word.length; i++) {
+                        board[coords1[0].x][coords1[1].y + i] = word[i];
+                    } else
+                    // Insert word down
+                    for (var _i3 = 0; _i3 < word.length; _i3++) {
+                        board[coords1[0].x + _i3][coords1[1].y] = word[_i3];
+                    }break;
             }
         }
     };
