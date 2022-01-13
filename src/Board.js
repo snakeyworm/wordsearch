@@ -16,7 +16,7 @@ var startBoardStyle = {
 
     // Generate a number between 0 and n-1
 };var random = function random(n) {
-    return Math.floor(Math.random * n);
+    return Math.floor(Math.random() * n);
 };
 
 // Component for game board
@@ -82,14 +82,23 @@ function Board(props) {
         setBoard(board);
     };
 
+    /*
+     *  Returns random coordinates for words on the
+     * in the form [ x, y, changeXY, ].
+     *
+     */
     var generateRandomCoords = function generateRandomCoords(word) {
 
         var coords = void 0;
         var accrossOrDown = random(2);
 
-        if (accrossOrDown) coords = [random(BOARD_SIZE), random(BOARD_SIZE - word.length + 1), word.length * accrossOrDown ? 1 : -1];else coords = [random(BOARD_SIZE - word.length + 1), random(BOARD_SIZE), word.length * accrossOrDown ? 1 : -1];
+        if (accrossOrDown)
+            // Accross
+            coords = [random(BOARD_SIZE), random(BOARD_SIZE - word.length + 1), word.length * accrossOrDown ? 1 : -1];else
+            // Down
+            coords = [random(BOARD_SIZE - word.length + 1), random(BOARD_SIZE), word.length * accrossOrDown ? 1 : -1];
 
-        console.log(coords); // TODO Random seems to be returning NaN
+        // console.log( coords ) // TODO Random seems to be returning NaN
         return coords;
     };
 
@@ -103,15 +112,15 @@ function Board(props) {
 
             var word = props.words[i];
             var coords1 = generateRandomCoords(word);
-            var accrossOrDown = coords[2] > 0 ? 0 : 1;
+            var accrossOrDown = coords1[2] > 0 ? 0 : 1;
 
             // TODO Remove when done
-            coords1 = [2, 7, 3];
-
+            coords1 = [5, 5, 3];
+            accrossOrDown = 0;
             // TODO Test to see if this works
             for (var j = 0; j < wordCoords.current.length; j++) {
                 var coords2 = wordCoords.current[j];
-                if (coords1[accrossOrDown] >= coords2[accrossOrDown] && coords1[accrossOrDown] <= coords2[accrossOrDown] + coords2[2] * -1) {
+                if (coords1[accrossOrDown] >= coords2[accrossOrDown] && coords1[accrossOrDown] + Math.abs(coords1[2]) <= coords2[accrossOrDown] + Math.abs(coords2[2]) && coords1[accrossOrDown === 0 ? 1 : 0] === coords2[accrossOrDown === 0 ? 1 : 0]) {
                     console.log("Intersects");
                 } else {
                     console.log("clear");
