@@ -1,6 +1,6 @@
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 // Constants
 
@@ -11,15 +11,16 @@ var FONT_MULTIPLIER = 0.05;
 var INVALID_WORDS_MSG = "Invalid words provided:";
 
 // Style
-// TODO Fix board positioning
 var startBoardStyle = {
-    position: "fixed",
-    left: window.innerWidth * 0.5,
-    top: window.innerWidth * 0.5,
-    fontSize: window.innerWidth * FONT_MULTIPLIER
+    position: "fixed"
 
-    // Component for game board
-};function Board(props) {
+    // Generate a number between 0 and n-1
+};var random = function random(n) {
+    return Math.floor(Math.random * n);
+};
+
+// Component for game board
+function Board(props) {
 
     /*
      * props
@@ -34,14 +35,16 @@ var startBoardStyle = {
         setBoard = _useState2[1]; // Board data
 
 
+    var wordCoords = useRef([]);
+
     var _useState3 = useState(startBoardStyle),
         _useState4 = _slicedToArray(_useState3, 2),
         boardStyle = _useState4[0],
         setBoardStyle = _useState4[1];
 
+    var boardDOM = useRef(null);
+
     // TODO Ensure words do not overwrite each other
-
-
     var populateBoard = function populateBoard() {
 
         // Prop checking
@@ -60,68 +63,107 @@ var startBoardStyle = {
         // Clear board
         board = [];
 
-        // Populate board
+        // Allocate board space
         for (var i = 0; i < BOARD_SIZE; i++) {
             // Row
+
             var row = [];
+
             for (var _i = 0; _i < BOARD_SIZE; _i++) {
                 // Column
                 row.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
             }
+
             row.push(React.createElement("br", null)); // Insert break at end of row
             board.push(row);
         }
 
+        insertWords();
+        setBoard(board);
+    };
+
+    var generateRandomCoords = function generateRandomCoords(word) {
+
+        var coords = void 0;
+        var accrossOrDown = random(2);
+
+        if (accrossOrDown) coords = [random(BOARD_SIZE), random(BOARD_SIZE - word.length + 1), word.length * accrossOrDown ? 1 : -1];else coords = [random(BOARD_SIZE - word.length + 1), random(BOARD_SIZE), word.length * accrossOrDown ? 1 : -1];
+
+        console.log(coords); // TODO Random seems to be returning NaN
+        return coords;
+    };
+
+    var insertWords = function insertWords() {
+
+        // TODO Remove when done
+        wordCoords.current = [[2, 5, 5]];
+
         // Insert each word
-        for (var _i2 = 0; _i2 < props.words.length; _i2++) {
+        for (var i = 0; i < props.words.length; i++) {
 
-            var word = props.words[_i2];
-            var accrossOrDown = Math.floor(Math.random() * 2); // Wether word is horizontal or vertical
-            var _row = void 0;
-            var column = void 0;
+            var word = props.words[i];
+            var coords1 = generateRandomCoords(word);
+            var accrossOrDown = coords[2] > 0 ? 0 : 1;
 
-            // Insert accross a row or a column
-            if (accrossOrDown) {
-                _row = Math.floor(Math.random() * 12);
-                column = Math.floor(Math.random() * (12 - word.length + 1));
-                // Across
-                for (var x = 0; x < word.length; x++) {
-                    board[_row][column + x] = word[x].toUpperCase();
-                }
-            } else {
-                _row = Math.floor(Math.random() * (12 - word.length + 1));
-                column = Math.floor(Math.random() * 12);
-                // Down
-                for (var y = 0; y < word.length; y++) {
-                    board[_row + y][column] = word[y].toUpperCase();
+            // TODO Remove when done
+            coords1 = [2, 7, 3];
+
+            // TODO Test to see if this works
+            for (var j = 0; j < wordCoords.current.length; j++) {
+                var coords2 = wordCoords.current[j];
+                if (coords1[accrossOrDown] >= coords2[accrossOrDown] && coords1[accrossOrDown] <= coords2[accrossOrDown] + coords2[2] * -1) {
+                    console.log("Intersects");
+                } else {
+                    console.log("clear");
                 }
             }
-        }
 
-        setBoard(board);
+            // // Insert accross a row or a column
+            // if ( accrossOrDown ) {
+            //     row = Math.floor( Math.random() * 12 )
+            //     column = Math.floor( Math.random() * ( 12 - word.length + 1 ) )
+            //     // Across
+            //     for ( let x = 0; x < word.length; x++ ) {
+            //         board[ row ][ column + x ] = word[ x ].toUpperCase()
+            //     }
+            // } else {
+            //     row = Math.floor( Math.random() * ( 12 - word.length + 1 ) )
+            //     column = Math.floor( Math.random() * 12 )
+            //     // Down
+            //     for ( let y = 0; y < word.length; y++ ) {
+            //         board[ row + y ][ column ] = word[ y ].toUpperCase()
+            //     }
+            // }
+        }
+    };
+
+    // TODO Figure out how to do this with a reference 
+    var resizeBoard = function resizeBoard() {
+        return setBoardStyle(Object.assign({}, startBoardStyle, {
+            left: window.innerWidth * 0.5 - boardDOM.current.offsetWidth / 2,
+            top: window.innerHeight * 0.5 - boardDOM.current.offsetHeight / 2,
+            fontSize: window.innerWidth * FONT_MULTIPLIER
+        }));
     };
 
     useEffect(function () {
 
         populateBoard();
+        resizeBoard(); // Initial resize
 
         // Adjust font on window resize
         window.onresize = function () {
-            // TODO Figure out how to do this with a reference 
-            setBoardStyle(Object.assign({}, startBoardStyle, {
-                left: window.innerWidth * 0.5,
-                top: window.innerWidth * 0.5,
-                fontSize: window.innerWidth * FONT_MULTIPLIER
-            }));
+            resizeBoard();
         };
     }, []);
 
     // Populate board when new words are received
     useEffect(populateBoard, [props.words]);
+    useEffect(resizeBoard, [board]); // Resize on board change(For initial render)
 
     return React.createElement(
         "div",
-        { style: boardStyle },
+        { ref: boardDOM, style: boardStyle },
         board
     );
 }
