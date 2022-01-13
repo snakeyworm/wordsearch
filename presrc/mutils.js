@@ -62,3 +62,5 @@ function doIntersect( p1, q1, p2, q2 ) {
     return false
 
 }
+
+export { Point, onSegment, getOrientation, doIntersect }

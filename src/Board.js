@@ -1,6 +1,7 @@
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 import React, { useState, useRef, useEffect } from "react";
+import { doIntersect, Point } from "./mutils";
 
 // Constants
 
@@ -78,10 +79,12 @@ function Board(props) {
             board.push(row);
         }
 
-        insertWords();
-        setBoard(board);
+        for (var _i2 = 0; _i2 < props.words.length; _i2++) {
+            insertWord(props.words[_i2]);
+        }setBoard(board);
     };
 
+    // TODO Eventually generate diagonal coords
     /*
      *  Returns random coordinates for words on the
      * in the form [ x, y, changeXY, ].
@@ -89,43 +92,45 @@ function Board(props) {
      */
     var generateRandomCoords = function generateRandomCoords(word) {
 
-        var coords = void 0;
         var accrossOrDown = random(2);
+        var a = random(BOARD_SIZE);
+        var b = random(BOARD_SIZE - word.length + 1);
+        var x = void 0;
+        var y = void 0;
 
-        if (accrossOrDown)
-            // Accross
-            coords = [random(BOARD_SIZE), random(BOARD_SIZE - word.length + 1), word.length * accrossOrDown ? 1 : -1];else
-            // Down
-            coords = [random(BOARD_SIZE - word.length + 1), random(BOARD_SIZE), word.length * accrossOrDown ? 1 : -1];
+        if (accrossOrDown) {
+            x = b;
+            y = a;
+        } else {
+            x = a;
+            y = b;
+        }
 
-        // console.log( coords ) // TODO Random seems to be returning NaN
-        return coords;
+        return [new Point(x, y), new Point(x + (accrossOrDown ? word.length : 0), y + (!accrossOrDown ? word.length : 0))];
+    };
+
+    // Insert given word
+    var insertWord = function insertWord(word) {
+
+        while (true) {
+
+            var coords1 = generateRandomCoords(word);
+
+            for (var j = 0; j < wordCoords.current.length; j++) {
+
+                var coords2 = wordCoords.current[j];
+
+                if (doIntersect(coords1[0], coords1[1], coords2[0], coords2[1])) {}
+            }
+        }
     };
 
     var insertWords = function insertWords() {
-
-        // TODO Remove when done
-        wordCoords.current = [[2, 5, 5]];
 
         // Insert each word
         for (var i = 0; i < props.words.length; i++) {
 
             var word = props.words[i];
-            var coords1 = generateRandomCoords(word);
-            var accrossOrDown = coords1[2] > 0 ? 0 : 1;
-
-            // TODO Remove when done
-            coords1 = [5, 5, 3];
-            accrossOrDown = 0;
-            // TODO Test to see if this works
-            for (var j = 0; j < wordCoords.current.length; j++) {
-                var coords2 = wordCoords.current[j];
-                if (coords1[accrossOrDown] >= coords2[accrossOrDown] && coords1[accrossOrDown] + Math.abs(coords1[2]) <= coords2[accrossOrDown] + Math.abs(coords2[2]) && coords1[accrossOrDown === 0 ? 1 : 0] === coords2[accrossOrDown === 0 ? 1 : 0]) {
-                    console.log("Intersects");
-                } else {
-                    console.log("clear");
-                }
-            }
 
             // // Insert accross a row or a column
             // if ( accrossOrDown ) {

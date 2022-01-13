@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect, } from "react"
+import { doIntersect, Point } from "./mutils";
 
 // Constants
 
@@ -71,70 +72,72 @@ function Board( props ) {
 
         }
 
-        insertWords()
+        for ( let i = 0; i < props.words.length; i++ )
+            insertWord( props.words[i] )
+
         setBoard( board )
 
     }
 
+    // TODO Eventually generate diagonal coords
     /*
      *  Returns random coordinates for words on the
      * in the form [ x, y, changeXY, ].
      *
      */
     let generateRandomCoords = ( word ) => {
-
-        let coords
-        let accrossOrDown = random( 2 )
         
-        if ( accrossOrDown )
-            // Accross
-            coords = [ 
-                random( BOARD_SIZE ),
-                random( BOARD_SIZE - word.length + 1 ),
-                word.length * ( accrossOrDown ) ? 1 : -1
-            ]
-        else
-            // Down
-            coords = [ 
-                random( BOARD_SIZE - word.length + 1 ),
-                random( BOARD_SIZE ),
-                word.length * ( accrossOrDown ) ? 1 : -1
-            ]
+        let accrossOrDown = random( 2 )
+        let a = random( BOARD_SIZE )
+        let b = random( BOARD_SIZE - word.length + 1 )
+        let x
+        let y
 
-        // console.log( coords ) // TODO Random seems to be returning NaN
-        return coords
+        if ( accrossOrDown ) {
+            x = b
+            y = a
+        } else {
+            x = a
+            y = b
+        }
+
+        return [
+            new Point( x, y ),
+            new Point( x + ( accrossOrDown ? word.length : 0 ), y + ( !accrossOrDown ? word.length : 0 ) )
+        ]
+
+    }
+
+    // Insert given word
+    let insertWord = ( word ) => {
+
+        while ( true ) {
+
+            let coords1 = generateRandomCoords( word )
+
+            for ( let j = 0; j < wordCoords.current.length; j++ ) {
+
+                let coords2 = wordCoords.current[j]
+
+                if ( doIntersect( coords1[0], coords1[1], coords2[0], coords2[1] ) ) {
+
+
+                    
+                }
+                
+            }
+
+        }
 
     }
 
     let insertWords = () => {
 
-        // TODO Remove when done
-        wordCoords.current = [
-            [ 2, 5, 5 ],
-        ]
-
         // Insert each word
         for ( let i = 0; i < props.words.length; i++ ) {
 
             let word = props.words[ i ]
-            let coords1 = generateRandomCoords( word )
-            let accrossOrDown = coords1[2] > 0 ? 0 : 1
-
-            // TODO Remove when done
-            coords1 = [ 5, 5, 3 ]
-            accrossOrDown = 0
-            // TODO Test to see if this works
-            for ( let j = 0; j < wordCoords.current.length; j++ ) {
-                let coords2 = wordCoords.current[j]
-                if (
-                    coords1[accrossOrDown] >= coords2[accrossOrDown] && coords1[accrossOrDown] + Math.abs( coords1[2] ) <= coords2[accrossOrDown] + Math.abs( coords2[2] )
-                    && coords1[ accrossOrDown === 0 ? 1 : 0 ] === coords2[ accrossOrDown === 0 ? 1 : 0 ] 
-                ) {
-                    console.log( "Intersects" )
-                } else {
-                    console.log( "clear" )
-                }
-            }
+            
 
             // // Insert accross a row or a column
             // if ( accrossOrDown ) {
