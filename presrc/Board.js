@@ -10,7 +10,16 @@ const FONT_MULTIPLIER = 0.05;
 
 const INVALID_WORDS_MSG = "Invalid words provided:"
 
+// Enums
+
+const WORD_DIRECTION = {
+    HORIZONTAL: 0,
+    VERTICAL: 1,
+    DIAGONAL: 2,
+}
+
 // Style
+// TODO Fix letter spacing
 const startBoardStyle = {
     position: "fixed",
 }
@@ -33,7 +42,6 @@ function Board( props ) {
     let [ boardStyle, setBoardStyle ] = useState( startBoardStyle )
     let boardDOM = useRef( null )
 
-    // TODO Fix word insertion
     let populateBoard = () => {
 
         // Prop checking
@@ -80,7 +88,6 @@ function Board( props ) {
 
     }
 
-    // TODO Eventually generate diagonal coords
     /*
      *  Returns random coordinates for words on the
      * in the form [ x, y, changeXY, ].
@@ -88,28 +95,67 @@ function Board( props ) {
      */
     let generateRandomCoords = ( word ) => {
         
-        let accrossOrDown = random( 2 )
         let a = random( BOARD_SIZE )
         let b = random( BOARD_SIZE - word.length + 1 )
-        let x
-        let y
+        let start = new Point( 0, 0 )
+        let end = new Point( 0, 0 )
 
-        // Set x and y values based on word axis
-        if ( accrossOrDown ) {
-            x = b
-            y = a
-        } else {
-            x = a
-            y = b
+        // Randomly determine if word is horizontal, vertical, or diagonal
+        let accrossOrDown = random( Object.keys( WORD_DIRECTION ).length )
+    
+        // Generate coordinates based on direction
+        switch ( accrossOrDown ) {
+
+            case WORD_DIRECTION.HORIZONTAL:
+                start = new Point( b, a )
+                end = new Point( b + word.length, a )
+                break
+            case WORD_DIRECTION.VERTICAL:
+                start = new Point( a, b )
+                end = new Point( a, b + word.length )
+                break
+            case WORD_DIRECTION.DIAGONAL:
+
+                // TODO Code hangs
+                b1: {
+                    while ( true ) {
+
+                        start = new Point(
+                            random( BOARD_SIZE ),
+                            random( BOARD_SIZE )
+                        )
+
+                        switch ( random( 2 ) ) {
+                            case 0:
+                                // Diagonal down
+                                end = new Point( a + word.length - 1, b + word.length - 1 )
+                                // Check if word fits else try insert diagonally up
+                                if ( end.x <= BOARD_SIZE - 1 && end.y <= BOARD_SIZE - 1 )
+                                    break b1;
+                            case 1:
+                                // Diagonal up
+                                end = new Point( a + word.length - 1, b - word.length - 1 )
+                                
+                        }
+
+                        // Check if word fits else try
+                        if ( end.x <= BOARD_SIZE - 1 && end.y >= 0 )
+                            break
+
+                    }
+                }
+                    
         }
 
         return [
-            new Point( x, y ),
-            new Point( x + ( accrossOrDown ? word.length : 0 ), y + ( !accrossOrDown ? word.length : 0 ) )
+            start,
+            end,
         ]
-
+    
     }
 
+    // TODO Eventually add diagonal word insertion
+    // TODO Eventually add reverse word insertion
     // Insert given word
     let insertWord = ( word ) => {
 
@@ -142,44 +188,18 @@ function Board( props ) {
                     // Insert word accross
                     for ( let i = 0; i < word.length; i++ )
                         board[ coords1[0].y ][ coords1[0].x + i ] = word[i]
-                else
+                else if ( coords1[0].x === coords1[1].x )
                     // Insert word down
                     for ( let i = 0; i < word.length; i++ )
                         board[ coords1[0].y + i ][ coords1[0].x ] = word[i]
+                else
+                    // Insert word diagonally
+                    console.log( "Diagonal word" )
 
                 break
 
             }
 
-
-        }
-
-    }
-
-    let insertWords = () => {
-
-        // Insert each word
-        for ( let i = 0; i < props.words.length; i++ ) {
-
-            let word = props.words[ i ]
-            
-
-            // // Insert accross a row or a column
-            // if ( accrossOrDown ) {
-            //     row = Math.floor( Math.random() * 12 )
-            //     column = Math.floor( Math.random() * ( 12 - word.length + 1 ) )
-            //     // Across
-            //     for ( let x = 0; x < word.length; x++ ) {
-            //         board[ row ][ column + x ] = word[ x ].toUpperCase()
-            //     }
-            // } else {
-            //     row = Math.floor( Math.random() * ( 12 - word.length + 1 ) )
-            //     column = Math.floor( Math.random() * 12 )
-            //     // Down
-            //     for ( let y = 0; y < word.length; y++ ) {
-            //         board[ row + y ][ column ] = word[ y ].toUpperCase()
-            //     }
-            // }
 
         }
 

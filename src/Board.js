@@ -11,8 +11,16 @@ var FONT_MULTIPLIER = 0.05;
 
 var INVALID_WORDS_MSG = "Invalid words provided:";
 
-// Style
-var startBoardStyle = {
+// Enums
+
+var WORD_DIRECTION = {
+    HORIZONTAL: 0,
+    VERTICAL: 1,
+    DIAGONAL: 2
+
+    // Style
+    // TODO Fix letter spacing
+};var startBoardStyle = {
     position: "fixed"
 
     // Generate a number between 0 and n-1
@@ -45,7 +53,6 @@ function Board(props) {
 
     var boardDOM = useRef(null);
 
-    // TODO Fix word insertion
     var populateBoard = function populateBoard() {
 
         // Prop checking
@@ -85,7 +92,6 @@ function Board(props) {
         }setBoard(board);
     };
 
-    // TODO Eventually generate diagonal coords
     /*
      *  Returns random coordinates for words on the
      * in the form [ x, y, changeXY, ].
@@ -93,24 +99,57 @@ function Board(props) {
      */
     var generateRandomCoords = function generateRandomCoords(word) {
 
-        var accrossOrDown = random(2);
         var a = random(BOARD_SIZE);
         var b = random(BOARD_SIZE - word.length + 1);
-        var x = void 0;
-        var y = void 0;
+        var start = new Point(0, 0);
+        var end = new Point(0, 0);
 
-        // Set x and y values based on word axis
-        if (accrossOrDown) {
-            x = b;
-            y = a;
-        } else {
-            x = a;
-            y = b;
+        // Randomly determine if word is horizontal, vertical, or diagonal
+        var accrossOrDown = random(Object.keys(WORD_DIRECTION).length);
+
+        // Generate coordinates based on direction
+        switch (accrossOrDown) {
+
+            case WORD_DIRECTION.HORIZONTAL:
+                start = new Point(b, a);
+                end = new Point(b + word.length, a);
+                break;
+            case WORD_DIRECTION.VERTICAL:
+                start = new Point(a, b);
+                end = new Point(a, b + word.length);
+                break;
+            case WORD_DIRECTION.DIAGONAL:
+
+                // TODO Code hangs
+                b1: {
+                    while (true) {
+
+                        start = new Point(random(BOARD_SIZE), random(BOARD_SIZE));
+
+                        switch (random(2)) {
+                            case 0:
+                                // Diagonal down
+                                end = new Point(a + word.length - 1, b + word.length - 1);
+                                // Check if word fits else try insert diagonally up
+                                if (end.x <= BOARD_SIZE - 1 && end.y <= BOARD_SIZE - 1) break b1;
+                            case 1:
+                                // Diagonal up
+                                end = new Point(a + word.length - 1, b - word.length - 1);
+
+                        }
+
+                        // Check if word fits else try
+                        if (end.x <= BOARD_SIZE - 1 && end.y >= 0) break;
+                    }
+                }
+
         }
 
-        return [new Point(x, y), new Point(x + (accrossOrDown ? word.length : 0), y + (!accrossOrDown ? word.length : 0))];
+        return [start, end];
     };
 
+    // TODO Eventually add diagonal word insertion
+    // TODO Eventually add reverse word insertion
     // Insert given word
     var insertWord = function insertWord(word) {
 
@@ -142,38 +181,16 @@ function Board(props) {
                     // Insert word accross
                     for (var i = 0; i < word.length; i++) {
                         board[coords1[0].y][coords1[0].x + i] = word[i];
-                    } else
+                    } else if (coords1[0].x === coords1[1].x)
                     // Insert word down
                     for (var _i3 = 0; _i3 < word.length; _i3++) {
                         board[coords1[0].y + _i3][coords1[0].x] = word[_i3];
-                    }break;
+                    } else
+                    // Insert word diagonally
+                    console.log("Diagonal word");
+
+                break;
             }
-        }
-    };
-
-    var insertWords = function insertWords() {
-
-        // Insert each word
-        for (var i = 0; i < props.words.length; i++) {
-
-            var word = props.words[i];
-
-            // // Insert accross a row or a column
-            // if ( accrossOrDown ) {
-            //     row = Math.floor( Math.random() * 12 )
-            //     column = Math.floor( Math.random() * ( 12 - word.length + 1 ) )
-            //     // Across
-            //     for ( let x = 0; x < word.length; x++ ) {
-            //         board[ row ][ column + x ] = word[ x ].toUpperCase()
-            //     }
-            // } else {
-            //     row = Math.floor( Math.random() * ( 12 - word.length + 1 ) )
-            //     column = Math.floor( Math.random() * 12 )
-            //     // Down
-            //     for ( let y = 0; y < word.length; y++ ) {
-            //         board[ row + y ][ column ] = word[ y ].toUpperCase()
-            //     }
-            // }
         }
     };
 
