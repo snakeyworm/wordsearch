@@ -72,6 +72,7 @@ function Board( props ) {
 
         }
 
+        // Insert words
         for ( let i = 0; i < props.words.length; i++ )
             insertWord( props.words[i] )
 
@@ -137,14 +138,14 @@ function Board( props ) {
 
                 wordCoords.current.push( coords1 )
 
-                if ( coords1[0].x === coords1[1].x )
+                if ( coords1[0].y === coords1[1].y )
                     // Insert word accross
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].x ][ coords1[1].y + i ] = word[i]
+                        board[ coords1[0].y ][ coords1[0].x + i ] = word[i]
                 else
                     // Insert word down
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].x + i ][ coords1[1].y ] = word[i]
+                        board[ coords1[0].y + i ][ coords1[0].x ] = word[i]
 
                 break
 

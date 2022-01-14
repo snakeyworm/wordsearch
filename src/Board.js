@@ -79,6 +79,7 @@ function Board(props) {
             board.push(row);
         }
 
+        // Insert words
         for (var _i2 = 0; _i2 < props.words.length; _i2++) {
             insertWord(props.words[_i2]);
         }setBoard(board);
@@ -137,14 +138,14 @@ function Board(props) {
 
                 wordCoords.current.push(coords1);
 
-                if (coords1[0].x === coords1[1].x)
+                if (coords1[0].y === coords1[1].y)
                     // Insert word accross
                     for (var i = 0; i < word.length; i++) {
-                        board[coords1[0].x][coords1[1].y + i] = word[i];
+                        board[coords1[0].y][coords1[0].x + i] = word[i];
                     } else
                     // Insert word down
                     for (var _i3 = 0; _i3 < word.length; _i3++) {
-                        board[coords1[0].x + _i3][coords1[1].y] = word[_i3];
+                        board[coords1[0].y + _i3][coords1[0].x] = word[_i3];
                     }break;
             }
         }
