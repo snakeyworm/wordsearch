@@ -120,27 +120,15 @@ function Board(props) {
                 break;
             case WORD_DIRECTION.DIAGONAL:
 
-                // TODO Code hangs
-                b1: {
-                    while (true) {
+                start = new Point(random(BOARD_SIZE - word.length + 1), random(BOARD_SIZE - word.length + 1));
 
-                        start = new Point(random(BOARD_SIZE), random(BOARD_SIZE));
-
-                        switch (random(2)) {
-                            case 0:
-                                // Diagonal down
-                                end = new Point(a + word.length - 1, b + word.length - 1);
-                                // Check if word fits else try insert diagonally up
-                                if (end.x <= BOARD_SIZE - 1 && end.y <= BOARD_SIZE - 1) break b1;
-                            case 1:
-                                // Diagonal up
-                                end = new Point(a + word.length - 1, b - word.length - 1);
-
-                        }
-
-                        // Check if word fits else try
-                        if (end.x <= BOARD_SIZE - 1 && end.y >= 0) break;
-                    }
+                if (random(2) && start.y + word.length - 1 - (word.length - 1) >= 0) {
+                    // Diagonal down
+                    end = new Point(start.x + word.length - 1, start.y + word.length - 1);
+                } else {
+                    start.y += word.length - 1;
+                    // Diagonal up
+                    end = new Point(start.x + word.length - 1, start.y - (word.length - 1));
                 }
 
         }
@@ -185,9 +173,18 @@ function Board(props) {
                     // Insert word down
                     for (var _i3 = 0; _i3 < word.length; _i3++) {
                         board[coords1[0].y + _i3][coords1[0].x] = word[_i3];
-                    } else
+                    } else {
                     // Insert word diagonally
-                    console.log("Diagonal word");
+                    if (coords1[0].y < coords1[1].y)
+                        // Diagonally down
+                        for (var _i4 = 0; _i4 < word.length; _i4++) {
+                            board[coords1[0].y + _i4][coords1[0].x + _i4] = word[_i4];
+                        } else
+                        // Diagonally up
+                        for (var _i5 = 0; _i5 < word.length; _i5++) {
+                            board[coords1[0].y - _i5][coords1[0].x + _i5] = word[_i5];
+                        }
+                }
 
                 break;
             }

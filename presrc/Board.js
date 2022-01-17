@@ -116,33 +116,18 @@ function Board( props ) {
                 break
             case WORD_DIRECTION.DIAGONAL:
 
-                // TODO Code hangs
-                b1: {
-                    while ( true ) {
+                start = new Point(
+                    random( BOARD_SIZE - word.length + 1 ),
+                    random( BOARD_SIZE - word.length + 1 )
+                )
 
-                        start = new Point(
-                            random( BOARD_SIZE ),
-                            random( BOARD_SIZE )
-                        )
-
-                        switch ( random( 2 ) ) {
-                            case 0:
-                                // Diagonal down
-                                end = new Point( a + word.length - 1, b + word.length - 1 )
-                                // Check if word fits else try insert diagonally up
-                                if ( end.x <= BOARD_SIZE - 1 && end.y <= BOARD_SIZE - 1 )
-                                    break b1;
-                            case 1:
-                                // Diagonal up
-                                end = new Point( a + word.length - 1, b - word.length - 1 )
-                                
-                        }
-
-                        // Check if word fits else try
-                        if ( end.x <= BOARD_SIZE - 1 && end.y >= 0 )
-                            break
-
-                    }
+                if ( random( 2 ) && start.y + word.length - 1 - ( word.length - 1 ) >= 0 ) {
+                    // Diagonal down
+                    end = new Point( start.x + word.length - 1, start.y + word.length - 1 )
+                } else {
+                    start.y += word.length - 1
+                    // Diagonal up
+                    end = new Point( start.x + word.length - 1, start.y - ( word.length - 1 ) )
                 }
                     
         }
@@ -192,9 +177,15 @@ function Board( props ) {
                     // Insert word down
                     for ( let i = 0; i < word.length; i++ )
                         board[ coords1[0].y + i ][ coords1[0].x ] = word[i]
+                else if ( coords1[0].y < coords1[1].y ) // TODO Test again to see if it works
+                    // Diagonally down
+                    for ( let i = 0; i < word.length; i++ )
+                        board[ coords1[0].y + i ][ coords1[0].x + i ] = word[i]
                 else
-                    // Insert word diagonally
-                    console.log( "Diagonal word" )
+                    // Diagonally up
+                    for ( let i = 0; i < word.length; i++ )
+                        board[ coords1[0].y - i ][ coords1[0].x + i ] = word[i]
+                }
 
                 break
 
