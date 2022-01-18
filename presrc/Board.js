@@ -86,6 +86,8 @@ function Board( props ) {
 
         setBoard( board )
 
+        console.log( board ) // TODO Remove when dones
+
     }
 
     /*
@@ -139,8 +141,6 @@ function Board( props ) {
     
     }
 
-    // TODO Eventually add diagonal word insertion
-    // TODO Eventually add reverse word insertion
     // Insert given word
     let insertWord = ( word ) => {
 
@@ -151,6 +151,7 @@ function Board( props ) {
 
             let intersect = false
             let coords1 = generateRandomCoords( word )
+            let reverse = 0
 
             // Check for intersections with current wotrds
             for ( let j = 0; j < wordCoords.current.length; j++ ) {
@@ -169,22 +170,26 @@ function Board( props ) {
 
                 wordCoords.current.push( coords1 )
 
+                // Reverse 
+                if ( random( 2 ) && random( 2 ) )
+                    reverse = word.length - 1
+                
                 if ( coords1[0].y === coords1[1].y )
-                    // Insert word accross
+                    // Insert word across
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].y ][ coords1[0].x + i ] = word[i]
+                        board[ coords1[0].y ][ coords1[0].x + i ] = word[Math.abs( i - reverse )]
                 else if ( coords1[0].x === coords1[1].x )
                     // Insert word down
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].y + i ][ coords1[0].x ] = word[i]
+                        board[ coords1[0].y + i ][ coords1[0].x ] = word[Math.abs( i - reverse )]
                 else if ( coords1[0].y < coords1[1].y ) // TODO Test again to see if it works
                     // Diagonally down
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].y + i ][ coords1[0].x + i ] = word[i]
-                else
+                        board[ coords1[0].y + i ][ coords1[0].x + i ] = word[Math.abs( i - reverse )]
+                else {
                     // Diagonally up
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].y - i ][ coords1[0].x + i ] = word[i]
+                        board[ coords1[0].y - i ][ coords1[0].x + i ] = word[Math.abs( i - reverse )]
                 }
 
                 break

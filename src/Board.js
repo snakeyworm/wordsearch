@@ -90,6 +90,8 @@ function Board(props) {
         for (var _i2 = 0; _i2 < props.words.length; _i2++) {
             insertWord(props.words[_i2]);
         }setBoard(board);
+
+        console.log(board); // TODO Remove when dones
     };
 
     /*
@@ -136,8 +138,6 @@ function Board(props) {
         return [start, end];
     };
 
-    // TODO Eventually add diagonal word insertion
-    // TODO Eventually add reverse word insertion
     // Insert given word
     var insertWord = function insertWord(word) {
 
@@ -148,6 +148,7 @@ function Board(props) {
 
             var intersect = false;
             var coords1 = generateRandomCoords(word);
+            var reverse = 0;
 
             // Check for intersections with current wotrds
             for (var j = 0; j < wordCoords.current.length; j++) {
@@ -165,25 +166,26 @@ function Board(props) {
 
                 wordCoords.current.push(coords1);
 
+                // Reverse 
+                if (random(2) && random(2)) reverse = word.length - 1;
+
                 if (coords1[0].y === coords1[1].y)
-                    // Insert word accross
+                    // Insert word across
                     for (var i = 0; i < word.length; i++) {
-                        board[coords1[0].y][coords1[0].x + i] = word[i];
+                        board[coords1[0].y][coords1[0].x + i] = word[Math.abs(i - reverse)];
                     } else if (coords1[0].x === coords1[1].x)
                     // Insert word down
                     for (var _i3 = 0; _i3 < word.length; _i3++) {
-                        board[coords1[0].y + _i3][coords1[0].x] = word[_i3];
+                        board[coords1[0].y + _i3][coords1[0].x] = word[Math.abs(_i3 - reverse)];
+                    } else if (coords1[0].y < coords1[1].y) // TODO Test again to see if it works
+                    // Diagonally down
+                    for (var _i4 = 0; _i4 < word.length; _i4++) {
+                        board[coords1[0].y + _i4][coords1[0].x + _i4] = word[Math.abs(_i4 - reverse)];
                     } else {
-                    // Insert word diagonally
-                    if (coords1[0].y < coords1[1].y)
-                        // Diagonally down
-                        for (var _i4 = 0; _i4 < word.length; _i4++) {
-                            board[coords1[0].y + _i4][coords1[0].x + _i4] = word[_i4];
-                        } else
-                        // Diagonally up
-                        for (var _i5 = 0; _i5 < word.length; _i5++) {
-                            board[coords1[0].y - _i5][coords1[0].x + _i5] = word[_i5];
-                        }
+                    // Diagonally up
+                    for (var _i5 = 0; _i5 < word.length; _i5++) {
+                        board[coords1[0].y - _i5][coords1[0].x + _i5] = word[Math.abs(_i5 - reverse)];
+                    }
                 }
 
                 break;
