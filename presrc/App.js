@@ -1,16 +1,22 @@
 
 // wordsearch v0.0.1
 
-import React from "react"
+import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import Board from "./Board"
-import WordField from "./WordField"
 
 // App container
 function App() {
 
+    let [ input, setInput ] = useState( "" )
+
+    let handleChange = ( event ) => {
+        console.log( event.target.value )
+        setInput( event.target.value )
+    }
+
     return ( <div>
-        <WordField />
+        <input type="text" value={input} onChange={handleChange}></input>
         <Board words={[ "ice", "Bible", "God", "computer", "hockey", "chocolate" ]} />
     </div> )
 

@@ -86,7 +86,7 @@ function Board( props ) {
 
         setBoard( board )
 
-        console.log( board ) // TODO Remove when dones
+        console.log( board ) // TODO Remove when done
 
     }
 
@@ -182,7 +182,7 @@ function Board( props ) {
                     // Insert word down
                     for ( let i = 0; i < word.length; i++ )
                         board[ coords1[0].y + i ][ coords1[0].x ] = word[Math.abs( i - reverse )]
-                else if ( coords1[0].y < coords1[1].y ) // TODO Test again to see if it works
+                else if ( coords1[0].y < coords1[1].y )
                     // Diagonally down
                     for ( let i = 0; i < word.length; i++ )
                         board[ coords1[0].y + i ][ coords1[0].x + i ] = word[Math.abs( i - reverse )]
@@ -208,6 +208,13 @@ function Board( props ) {
         top: window.innerHeight * 0.5 - boardDOM.current.offsetHeight / 2,
         fontSize: window.innerWidth * FONT_MULTIPLIER,
     } )
+
+    let handleKeyDown = ( event ) => {
+
+        console.log( "Hello" )
+        console.log( event )
+
+    }
 
     useEffect( () => {
 
