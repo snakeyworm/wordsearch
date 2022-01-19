@@ -13,6 +13,11 @@ function App() {
         input = _useState2[0],
         setInput = _useState2[1];
 
+    var _useState3 = useState(["ice", "Bible", "God", "computer", "hockey", "chocolate"]),
+        _useState4 = _slicedToArray(_useState3, 2),
+        words = _useState4[0],
+        setWords = _useState4[1];
+
     var handleChange = function handleChange(event) {
         console.log(event.target.value);
         setInput(event.target.value);
@@ -22,7 +27,7 @@ function App() {
         "div",
         null,
         React.createElement("input", { type: "text", value: input, onChange: handleChange }),
-        React.createElement(Board, { words: ["ice", "Bible", "God", "computer", "hockey", "chocolate"] })
+        React.createElement(Board, { words: words, answer: input })
     );
 }
 

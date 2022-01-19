@@ -9,6 +9,7 @@ import Board from "./Board"
 function App() {
 
     let [ input, setInput ] = useState( "" )
+    let [ words, setWords ] = useState( [ "ice", "Bible", "God", "computer", "hockey", "chocolate" ] )
 
     let handleChange = ( event ) => {
         console.log( event.target.value )
@@ -17,7 +18,7 @@ function App() {
 
     return ( <div>
         <input type="text" value={input} onChange={handleChange}></input>
-        <Board words={[ "ice", "Bible", "God", "computer", "hockey", "chocolate" ]} />
+        <Board words={words} answer={input} />
     </div> )
 
 }
