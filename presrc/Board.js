@@ -38,6 +38,7 @@ function Board( props ) {
      */
 
     let [ board, setBoard ] = useState( [] ) // Board data
+    let [ renderSwitch, reRender ] = useState( true ) // TODO Remove if not needed
     let wordCoords = useRef( [] )
     let [ boardStyle, setBoardStyle ] = useState( startBoardStyle )
     let boardDOM = useRef( null )
@@ -47,6 +48,7 @@ function Board( props ) {
         // Prop checking
 
         let requiredArea = 0;
+        wordCoords.current = [] // Dump old word coordinate
 
         // Ensure words are correct length
         props.words.forEach( i => {
@@ -230,7 +232,32 @@ function Board( props ) {
 
     // Populate board when new words are received
     useEffect( populateBoard, [ props.words ] )
-    useEffect( resizeBoard, [ board ] ) // Resize on board change(For initial render)
+
+    // Resize on board change(For initial render)
+    useEffect( resizeBoard, [ board ] )
+
+    // TODO Respond to user finding a word(Doesn't render response for some reason)
+    // Check for an answer
+    useEffect( () => {
+        let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
+        let newBoard = [...board]
+        
+        // Check to see if an answer matches
+        if ( answerIndex !== -1 ) {
+            
+            let coords = wordCoords.current[answerIndex]
+            let start = coords[0]
+            let end = coords[1]
+            
+            if ( start.y === end.y )
+                newBoard[ start.y ].splice( start.x, props.words[ answerIndex ].length, "-".repeat( props.words[ answerIndex ].length ) )
+    
+            setBoard( newBoard )
+            
+        }
+    }, [ props.answer ] )
+
+    console.log( board )
 
     return ( <div ref={boardDOM} style={boardStyle}>
         {board}

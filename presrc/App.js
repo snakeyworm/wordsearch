@@ -9,7 +9,7 @@ import Board from "./Board"
 function App() {
 
     let [ input, setInput ] = useState( "" )
-    let [ words, setWords ] = useState( [ "ice", "Bible", "God", "computer", "hockey", "chocolate" ] )
+    let [ words, setWords ] = useState( [ "ice", "bible", "god", "computer", "hockey", "chocolate" ] )
 
     let handleChange = ( event ) => {
         console.log( event.target.value )

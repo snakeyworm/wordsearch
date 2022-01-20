@@ -1,5 +1,7 @@
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 import React, { useState, useRef, useEffect } from "react";
 import { doIntersect, Point } from "./mutils";
 
@@ -44,12 +46,18 @@ function Board(props) {
         setBoard = _useState2[1]; // Board data
 
 
+    var _useState3 = useState(true),
+        _useState4 = _slicedToArray(_useState3, 2),
+        renderSwitch = _useState4[0],
+        reRender = _useState4[1]; // TODO Remove if not needed
+
+
     var wordCoords = useRef([]);
 
-    var _useState3 = useState(startBoardStyle),
-        _useState4 = _slicedToArray(_useState3, 2),
-        boardStyle = _useState4[0],
-        setBoardStyle = _useState4[1];
+    var _useState5 = useState(startBoardStyle),
+        _useState6 = _slicedToArray(_useState5, 2),
+        boardStyle = _useState6[0],
+        setBoardStyle = _useState6[1];
 
     var boardDOM = useRef(null);
 
@@ -58,6 +66,7 @@ function Board(props) {
         // Prop checking
 
         var requiredArea = 0;
+        wordCoords.current = []; // Dump old word coordinate
 
         // Ensure words are correct length
         props.words.forEach(function (i) {
@@ -221,7 +230,30 @@ function Board(props) {
 
     // Populate board when new words are received
     useEffect(populateBoard, [props.words]);
-    useEffect(resizeBoard, [board]); // Resize on board change(For initial render)
+
+    // Resize on board change(For initial render)
+    useEffect(resizeBoard, [board]);
+
+    // TODO Respond to user finding a word(Doesn't render response for some reason)
+    // Check for an answer
+    useEffect(function () {
+        var answerIndex = props.words.indexOf(props.answer.toLowerCase());
+        var newBoard = [].concat(_toConsumableArray(board));
+
+        // Check to see if an answer matches
+        if (answerIndex !== -1) {
+
+            var coords = wordCoords.current[answerIndex];
+            var start = coords[0];
+            var end = coords[1];
+
+            if (start.y === end.y) newBoard[start.y].splice(start.x, props.words[answerIndex].length, "-".repeat(props.words[answerIndex].length));
+
+            setBoard(newBoard);
+        }
+    }, [props.answer]);
+
+    console.log(board);
 
     return React.createElement(
         "div",

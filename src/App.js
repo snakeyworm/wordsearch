@@ -13,7 +13,7 @@ function App() {
         input = _useState2[0],
         setInput = _useState2[1];
 
-    var _useState3 = useState(["ice", "Bible", "God", "computer", "hockey", "chocolate"]),
+    var _useState3 = useState(["ice", "bible", "god", "computer", "hockey", "chocolate"]),
         _useState4 = _slicedToArray(_useState3, 2),
         words = _useState4[0],
         setWords = _useState4[1];
