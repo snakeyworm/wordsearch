@@ -7,6 +7,7 @@ import { doIntersect, Point } from "./mutils";
 
 // Constants
 
+// TODO Maybe make board bigger
 var BOARD_SIZE = 12;
 var BOARD_AREA = BOARD_SIZE * BOARD_SIZE;
 var FONT_MULTIPLIER = 0.05;
@@ -24,7 +25,11 @@ var WORD_DIRECTION = {
     // TODO Fix letter spacing
 };var startBoardStyle = {
     position: "fixed"
+};
 
+var foundWordStyle = {
+    textDecoration: "line-through",
+    textDecorationColor: "red"
     // Generate a number between 0 and n-1
 };var random = function random(n) {
     return Math.floor(Math.random() * n);
@@ -202,6 +207,7 @@ function Board(props) {
         }
     };
 
+    // TODO Fix resizing(Position and size better)
     // TODO Figure out how to do this with a reference 
     var resizeBoard = function resizeBoard() {
         return setBoardStyle(Object.assign({}, startBoardStyle, {
@@ -247,18 +253,24 @@ function Board(props) {
             var start = coords[0];
             var end = coords[1];
 
-            if (start.y === end.y) newBoard[start.y].splice(start.x, props.words[answerIndex].length, "-".repeat(props.words[answerIndex].length));
+            if (start.y === end.y) {
+                var word = newBoard[start.y].slice(start.x, end.x);
+
+                newBoard[start.y].splice(start.x, word.length, React.createElement(
+                    "span",
+                    { style: foundWordStyle },
+                    word
+                ));
+            }
 
             setBoard(newBoard);
         }
     }, [props.answer]);
 
-    console.log(board);
-
     return React.createElement(
         "div",
         { ref: boardDOM, style: boardStyle },
-        board
+        board.flat()
     );
 }
 

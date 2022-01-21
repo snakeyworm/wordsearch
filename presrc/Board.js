@@ -4,6 +4,7 @@ import { doIntersect, Point } from "./mutils";
 
 // Constants
 
+// TODO Maybe make board bigger
 const BOARD_SIZE = 12
 const BOARD_AREA = BOARD_SIZE * BOARD_SIZE
 const FONT_MULTIPLIER = 0.05;
@@ -24,6 +25,10 @@ const startBoardStyle = {
     position: "fixed",
 }
 
+const foundWordStyle = {
+    textDecoration: "line-through",
+    textDecorationColor: "red",
+}
 // Generate a number between 0 and n-1
 let random = ( n ) => Math.floor( Math.random() * n ) 
 
@@ -203,6 +208,7 @@ function Board( props ) {
 
     }
 
+    // TODO Fix resizing(Position and size better)
     // TODO Figure out how to do this with a reference 
     let resizeBoard = () => setBoardStyle( {
         ...startBoardStyle,
@@ -249,18 +255,21 @@ function Board( props ) {
             let start = coords[0]
             let end = coords[1]
             
-            if ( start.y === end.y )
-                newBoard[ start.y ].splice( start.x, props.words[ answerIndex ].length, "-".repeat( props.words[ answerIndex ].length ) )
+            if ( start.y === end.y ) {
+                let word = newBoard[ start.y ].slice( start.x, end.x )
+
+                newBoard[start.y ].splice( start.x, word.length, <span style={foundWordStyle}>
+                    {word}
+                </span> )
+            }
     
             setBoard( newBoard )
             
         }
     }, [ props.answer ] )
 
-    console.log( board )
-
     return ( <div ref={boardDOM} style={boardStyle}>
-        {board}
+        {board.flat()}
     </div> );
 
 }
