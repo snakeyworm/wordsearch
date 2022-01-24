@@ -12,7 +12,6 @@ function App() {
     let [ words, setWords ] = useState( [ "ice", "bible", "god", "computer", "hockey", "chocolate" ] )
 
     let handleChange = ( event ) => {
-        console.log( event.target.value )
         setInput( event.target.value )
     }
 

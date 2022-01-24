@@ -10,7 +10,8 @@ import { doIntersect, Point } from "./mutils";
 // TODO Maybe make board bigger
 var BOARD_SIZE = 12;
 var BOARD_AREA = BOARD_SIZE * BOARD_SIZE;
-var FONT_MULTIPLIER = 0.05;
+var FONT_SIZE = window.innerWidth * 0.047; // Size for board font
+var ROW_SIZE = FONT_SIZE * 0.7; // Size of each row
 
 var INVALID_WORDS_MSG = "Invalid words provided:";
 
@@ -22,7 +23,6 @@ var WORD_DIRECTION = {
     DIAGONAL: 2
 
     // Style
-    // TODO Fix letter spacing
 };var startBoardStyle = {
     position: "fixed"
 };
@@ -30,6 +30,12 @@ var WORD_DIRECTION = {
 var foundWordStyle = {
     textDecoration: "line-through",
     textDecorationColor: "red"
+};
+
+var SVGStyle = {
+    width: window.innerWidth * 0.431,
+    height: ROW_SIZE * 12
+
     // Generate a number between 0 and n-1
 };var random = function random(n) {
     return Math.floor(Math.random() * n);
@@ -51,18 +57,23 @@ function Board(props) {
         setBoard = _useState2[1]; // Board data
 
 
-    var _useState3 = useState(true),
+    var _useState3 = useState([]),
         _useState4 = _slicedToArray(_useState3, 2),
-        renderSwitch = _useState4[0],
-        reRender = _useState4[1]; // TODO Remove if not needed
+        lines = _useState4[0],
+        setLines = _useState4[1];
+
+    var _useState5 = useState(true),
+        _useState6 = _slicedToArray(_useState5, 2),
+        renderSwitch = _useState6[0],
+        reRender = _useState6[1]; // TODO Remove if not needed
 
 
     var wordCoords = useRef([]);
 
-    var _useState5 = useState(startBoardStyle),
-        _useState6 = _slicedToArray(_useState5, 2),
-        boardStyle = _useState6[0],
-        setBoardStyle = _useState6[1];
+    var _useState7 = useState(startBoardStyle),
+        _useState8 = _slicedToArray(_useState7, 2),
+        boardStyle = _useState8[0],
+        setBoardStyle = _useState8[1];
 
     var boardDOM = useRef(null);
 
@@ -96,7 +107,6 @@ function Board(props) {
                 row.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
             }
 
-            row.push(React.createElement("br", null)); // Insert break at end of row
             board.push(row);
         }
 
@@ -211,16 +221,9 @@ function Board(props) {
     // TODO Figure out how to do this with a reference 
     var resizeBoard = function resizeBoard() {
         return setBoardStyle(Object.assign({}, startBoardStyle, {
-            left: window.innerWidth * 0.5 - boardDOM.current.offsetWidth / 2,
-            top: window.innerHeight * 0.5 - boardDOM.current.offsetHeight / 2,
-            fontSize: window.innerWidth * FONT_MULTIPLIER
+            left: window.innerWidth * 0.5 - boardDOM.current.width.baseVal.value / 2,
+            top: window.innerHeight * 0.5 - boardDOM.current.height.baseVal.value / 2
         }));
-    };
-
-    var handleKeyDown = function handleKeyDown(event) {
-
-        console.log("Hello");
-        console.log(event);
     };
 
     useEffect(function () {
@@ -244,7 +247,7 @@ function Board(props) {
     // Check for an answer
     useEffect(function () {
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
-        var newBoard = [].concat(_toConsumableArray(board));
+        var newLines = [].concat(_toConsumableArray(lines));
 
         // Check to see if an answer matches
         if (answerIndex !== -1) {
@@ -253,24 +256,48 @@ function Board(props) {
             var start = coords[0];
             var end = coords[1];
 
-            if (start.y === end.y) {
-                var word = newBoard[start.y].slice(start.x, end.x);
+            var letterWidth = SVGStyle.width / 12;
+            var letterHeight = SVGStyle.height / 12;
 
-                newBoard[start.y].splice(start.x, word.length, React.createElement(
-                    "span",
-                    { style: foundWordStyle },
-                    word
-                ));
-            }
+            newLines.push(React.createElement("line", {
+                x1: letterWidth * start.x,
+                y1: letterHeight * start.y,
+                x2: letterWidth * end.x,
+                y2: letterHeight * end.y,
+                style: {
+                    stroke: "red",
+                    strokeWidth: 4
+                }
+            }));
 
-            setBoard(newBoard);
+            setLines(newLines);
         }
     }, [props.answer]);
 
+    var yCount = 1;
+
     return React.createElement(
-        "div",
-        { ref: boardDOM, style: boardStyle },
-        board.flat()
+        "svg",
+        { style: boardStyle, ref: boardDOM, width: SVGStyle.width, height: SVGStyle.height },
+        React.createElement("rect", { width: SVGStyle.width, height: SVGStyle.height, rx: 10, fill: "white" }),
+        React.createElement(
+            "text",
+            { x: 0, y: 0, fontSize: FONT_SIZE },
+            board.map(function (i) {
+                console.log(boardDOM.current.children.item(1).getComputedTextLength() / 12 / 2);
+                console.log(SVGStyle.width);
+                return React.createElement(
+                    "tspan",
+                    {
+                        x: SVGStyle.width * 0.5 - boardDOM.current.children.item(1).getComputedTextLength() / 12 / 2,
+                        y: yCount++ * ROW_SIZE,
+                        textLength: SVGStyle.width * 0.9
+                    },
+                    i
+                );
+            })
+        ),
+        lines
     );
 }
 

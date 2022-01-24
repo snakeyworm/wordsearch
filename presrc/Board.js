@@ -7,7 +7,8 @@ import { doIntersect, Point } from "./mutils";
 // TODO Maybe make board bigger
 const BOARD_SIZE = 12
 const BOARD_AREA = BOARD_SIZE * BOARD_SIZE
-const FONT_MULTIPLIER = 0.05;
+const FONT_SIZE = window.innerWidth * 0.047 // Size for board font
+const ROW_SIZE = FONT_SIZE*0.7 // Size of each row
 
 const INVALID_WORDS_MSG = "Invalid words provided:"
 
@@ -20,7 +21,6 @@ const WORD_DIRECTION = {
 }
 
 // Style
-// TODO Fix letter spacing
 const startBoardStyle = {
     position: "fixed",
 }
@@ -29,6 +29,12 @@ const foundWordStyle = {
     textDecoration: "line-through",
     textDecorationColor: "red",
 }
+
+const SVGStyle = {
+    width: window.innerWidth * 0.431,
+    height: ROW_SIZE * 12,
+}
+
 // Generate a number between 0 and n-1
 let random = ( n ) => Math.floor( Math.random() * n ) 
 
@@ -42,7 +48,9 @@ function Board( props ) {
      * 
      */
 
+    // TODO Store columns in board not arrays to format text alignment better
     let [ board, setBoard ] = useState( [] ) // Board data
+    let [ lines, setLines ] = useState( [] )
     let [ renderSwitch, reRender ] = useState( true ) // TODO Remove if not needed
     let wordCoords = useRef( [] )
     let [ boardStyle, setBoardStyle ] = useState( startBoardStyle )
@@ -82,7 +90,6 @@ function Board( props ) {
                 );
             }
 
-            row.push( <br /> ) // Insert break at end of row
             board.push( row )
 
         }
@@ -212,17 +219,9 @@ function Board( props ) {
     // TODO Figure out how to do this with a reference 
     let resizeBoard = () => setBoardStyle( {
         ...startBoardStyle,
-        left: window.innerWidth * 0.5 - boardDOM.current.offsetWidth / 2,
-        top: window.innerHeight * 0.5 - boardDOM.current.offsetHeight / 2,
-        fontSize: window.innerWidth * FONT_MULTIPLIER,
+        left: window.innerWidth * 0.5 - boardDOM.current.width.baseVal.value / 2,
+        top: window.innerHeight * 0.5 - boardDOM.current.height.baseVal.value / 2,
     } )
-
-    let handleKeyDown = ( event ) => {
-
-        console.log( "Hello" )
-        console.log( event )
-
-    }
 
     useEffect( () => {
 
@@ -246,7 +245,7 @@ function Board( props ) {
     // Check for an answer
     useEffect( () => {
         let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
-        let newBoard = [...board]
+        let newLines = [...lines]
         
         // Check to see if an answer matches
         if ( answerIndex !== -1 ) {
@@ -254,23 +253,48 @@ function Board( props ) {
             let coords = wordCoords.current[answerIndex]
             let start = coords[0]
             let end = coords[1]
-            
-            if ( start.y === end.y ) {
-                let word = newBoard[ start.y ].slice( start.x, end.x )
 
-                newBoard[start.y ].splice( start.x, word.length, <span style={foundWordStyle}>
-                    {word}
-                </span> )
-            }
+            let letterWidth = SVGStyle.width / 12
+            let letterHeight = SVGStyle.height / 12
+
+            newLines.push( <line 
+                x1={letterWidth * start.x }
+                y1={letterHeight * start.y }
+                x2={letterWidth * end.x }
+                y2={letterHeight * end.y }
+                style={{
+                    stroke: "red",
+                    strokeWidth: 4,
+                }}
+            /> )
     
-            setBoard( newBoard )
+            
+            setLines( newLines )
             
         }
     }, [ props.answer ] )
 
-    return ( <div ref={boardDOM} style={boardStyle}>
-        {board.flat()}
-    </div> );
+    let yCount = 1
+
+    return ( <svg style={boardStyle} ref={boardDOM} width={SVGStyle.width} height={SVGStyle.height}>
+        {/* Background */}
+        <rect width={SVGStyle.width} height={SVGStyle.height} rx={10} fill="white" />
+        {/* Board content */}
+        {/* TODO Fix letter spacing */}
+        <text x={0} y={0} fontSize={FONT_SIZE}>{
+            board.map( ( i ) => { 
+                console.log( boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2 )
+                console.log( SVGStyle.width )
+                return <tspan 
+                    x={SVGStyle.width * 0.5 - boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2}
+                    y={yCount++ * ROW_SIZE}
+                    textLength={SVGStyle.width*0.9}
+                >
+                {i}
+            </tspan> } )
+}</text>
+        {lines}
+    </svg> )
 
 }
 

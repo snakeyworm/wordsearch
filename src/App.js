@@ -19,7 +19,6 @@ function App() {
         setWords = _useState4[1];
 
     var handleChange = function handleChange(event) {
-        console.log(event.target.value);
         setInput(event.target.value);
     };
 
