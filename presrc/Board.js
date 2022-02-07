@@ -8,7 +8,7 @@ import { doIntersect, Point } from "./mutils";
 const BOARD_SIZE = 12
 const BOARD_AREA = BOARD_SIZE * BOARD_SIZE
 const FONT_SIZE = window.innerWidth * 0.047 // Size for board font
-const ROW_SIZE = FONT_SIZE*0.7 // Size of each row
+const COLUMN_SIZE = FONT_SIZE*0.7 // Size of each row
 
 const INVALID_WORDS_MSG = "Invalid words provided:"
 
@@ -78,19 +78,19 @@ function Board( props ) {
         board = []
 
         // Allocate board space
-        for ( let i = 0; i < BOARD_SIZE; i++ ) { // Row
+        for ( let i = 0; i < BOARD_SIZE; i++ ) { // Column
 
-            let row = []
+            let column = []
 
-            for ( let i = 0; i < BOARD_SIZE; i++ ) { // Column
-                row.push(
+            for ( let i = 0; i < BOARD_SIZE; i++ ) { // Row
+                column.push(
                     String.fromCharCode(
                         65 + ( Math.floor( Math.random() * 25 ) )
                     )
                 );
             }
 
-            board.push( row )
+            board.push( column )
 
         }
 
@@ -257,7 +257,7 @@ function Board( props ) {
             let letterWidth = SVGStyle.width / 12
             let letterHeight = SVGStyle.height / 12
 
-            newLines.push( <line 
+            newLines.push( <line
                 x1={letterWidth * start.x }
                 y1={letterHeight * start.y }
                 x2={letterWidth * end.x }
@@ -274,7 +274,7 @@ function Board( props ) {
         }
     }, [ props.answer ] )
 
-    let yCount = 1
+    let xCount = 1
 
     return ( <svg style={boardStyle} ref={boardDOM} width={SVGStyle.width} height={SVGStyle.height}>
         {/* Background */}
@@ -285,9 +285,9 @@ function Board( props ) {
             board.map( ( i ) => { 
                 console.log( boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2 )
                 console.log( SVGStyle.width )
-                return <tspan 
-                    x={SVGStyle.width * 0.5 - boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2}
-                    y={yCount++ * ROW_SIZE}
+                return <tspan
+                    x={xCount++ * COLUMN_SIZE}
+                    y={SVGStyle.width * 0.5 - boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2}
                     textLength={SVGStyle.width*0.9}
                 >
                 {i}
