@@ -11,7 +11,7 @@ import { doIntersect, Point } from "./mutils";
 var BOARD_SIZE = 12;
 var BOARD_AREA = BOARD_SIZE * BOARD_SIZE;
 var FONT_SIZE = window.innerWidth * 0.047; // Size for board font
-var ROW_SIZE = FONT_SIZE * 0.7; // Size of each row
+var COLUMN_SIZE = FONT_SIZE * 0.7; // Size of each column
 
 var INVALID_WORDS_MSG = "Invalid words provided:";
 
@@ -34,7 +34,7 @@ var foundWordStyle = {
 
 var SVGStyle = {
     width: window.innerWidth * 0.431,
-    height: ROW_SIZE * 12
+    height: COLUMN_SIZE * 12
 
     // Generate a number between 0 and n-1
 };var random = function random(n) {
@@ -98,16 +98,16 @@ function Board(props) {
 
         // Allocate board space
         for (var i = 0; i < BOARD_SIZE; i++) {
-            // Row
+            // Column
 
-            var row = [];
+            var column = [];
 
             for (var _i = 0; _i < BOARD_SIZE; _i++) {
-                // Column
-                row.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
+                // Row
+                column.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
             }
 
-            board.push(row);
+            board.push(column);
         }
 
         // Insert words
@@ -274,7 +274,7 @@ function Board(props) {
         }
     }, [props.answer]);
 
-    var yCount = 1;
+    var xCount = 1;
 
     return React.createElement(
         "svg",
@@ -284,17 +284,14 @@ function Board(props) {
             "text",
             { x: 0, y: 0, fontSize: FONT_SIZE },
             board.map(function (i) {
-                console.log(boardDOM.current.children.item(1).getComputedTextLength() / 12 / 2);
-                console.log(SVGStyle.width);
-                return React.createElement(
-                    "tspan",
-                    {
-                        x: SVGStyle.width * 0.5 - boardDOM.current.children.item(1).getComputedTextLength() / 12 / 2,
-                        y: yCount++ * ROW_SIZE,
-                        textLength: SVGStyle.width * 0.9
-                    },
-                    i
-                );
+                // console.log( boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2 )
+                // console.log( SVGStyle.width )
+                console.log(i);
+                return React.createElement("tspan", {
+                    x: SVGStyle.width * 0.5 - boardDOM.current.children.item(1).getComputedTextLength() / 12 / 2,
+                    y: xCount++ * COLUMN_SIZE,
+                    textLength: SVGStyle.width * 0.9
+                });
             })
         ),
         lines

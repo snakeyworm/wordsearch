@@ -8,7 +8,7 @@ import { doIntersect, Point } from "./mutils";
 const BOARD_SIZE = 12
 const BOARD_AREA = BOARD_SIZE * BOARD_SIZE
 const FONT_SIZE = window.innerWidth * 0.047 // Size for board font
-const COLUMN_SIZE = FONT_SIZE*0.7 // Size of each row
+const COLUMN_SIZE = FONT_SIZE*0.7 // Size of each column
 
 const INVALID_WORDS_MSG = "Invalid words provided:"
 
@@ -32,7 +32,7 @@ const foundWordStyle = {
 
 const SVGStyle = {
     width: window.innerWidth * 0.431,
-    height: ROW_SIZE * 12,
+    height: COLUMN_SIZE * 12,
 }
 
 // Generate a number between 0 and n-1
@@ -283,14 +283,15 @@ function Board( props ) {
         {/* TODO Fix letter spacing */}
         <text x={0} y={0} fontSize={FONT_SIZE}>{
             board.map( ( i ) => { 
-                console.log( boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2 )
-                console.log( SVGStyle.width )
+                // console.log( boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2 )
+                // console.log( SVGStyle.width )
+                console.log( i )
                 return <tspan
-                    x={xCount++ * COLUMN_SIZE}
-                    y={SVGStyle.width * 0.5 - boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2}
+                    x={SVGStyle.width * 0.5 - boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2}
+                    y={xCount++ * COLUMN_SIZE}
                     textLength={SVGStyle.width*0.9}
                 >
-                {i}
+                
             </tspan> } )
 }</text>
         {lines}
