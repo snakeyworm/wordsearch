@@ -21,18 +21,24 @@ const WORD_DIRECTION = {
 }
 
 // Style
-const startBoardStyle = {
-    position: "fixed",
-}
 
-const foundWordStyle = {
-    textDecoration: "line-through",
-    textDecorationColor: "red",
-}
-
-const SVGStyle = {
-    width: window.innerWidth * 0.431,
-    height: COLUMN_SIZE * 12,
+const styles = {
+    startBoard: {
+        position: "fixed",
+    },
+    foundWord: {
+        textDecoration: "line-through",
+        textDecorationColor: "red",
+    },
+    svg: {
+        width: window.innerWidth * 0.431,
+        height: COLUMN_SIZE * 12,
+    },
+    boardText: {
+        fontSize: FONT_SIZE,
+        writingMode: "tb",
+        textOrientation: "upright",
+    },
 }
 
 // Generate a number between 0 and n-1
@@ -53,7 +59,7 @@ function Board( props ) {
     let [ lines, setLines ] = useState( [] )
     let [ renderSwitch, reRender ] = useState( true ) // TODO Remove if not needed
     let wordCoords = useRef( [] )
-    let [ boardStyle, setBoardStyle ] = useState( startBoardStyle )
+    let [ boardStyle, setBoardStyle ] = useState( styles.startBoard )
     let boardDOM = useRef( null )
 
     let populateBoard = () => {
@@ -117,10 +123,10 @@ function Board( props ) {
         let end = new Point( 0, 0 )
 
         // Randomly determine if word is horizontal, vertical, or diagonal
-        let accrossOrDown = random( Object.keys( WORD_DIRECTION ).length )
+        let wordDirection = random( Object.keys( WORD_DIRECTION ).length )
     
         // Generate coordinates based on direction
-        switch ( accrossOrDown ) {
+        switch ( wordDirection ) {
 
             case WORD_DIRECTION.HORIZONTAL:
                 start = new Point( b, a )
@@ -128,7 +134,7 @@ function Board( props ) {
                 break
             case WORD_DIRECTION.VERTICAL:
                 start = new Point( a, b )
-                end = new Point( a, b + word.length )
+                end = new Point( a, b + word.length ) 
                 break
             case WORD_DIRECTION.DIAGONAL:
 
@@ -151,6 +157,7 @@ function Board( props ) {
         return [
             start,
             end,
+            wordDirection,
         ]
     
     }
@@ -187,26 +194,31 @@ function Board( props ) {
                 // Reverse 
                 if ( random( 2 ) && random( 2 ) )
                     reverse = word.length - 1
-                
-                if ( coords1[0].y === coords1[1].y )
-                    // Insert word across
-                    for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].y ][ coords1[0].x + i ] = word[Math.abs( i - reverse )]
-                else if ( coords1[0].x === coords1[1].x )
-                    // Insert word down
-                    for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].y + i ][ coords1[0].x ] = word[Math.abs( i - reverse )]
-                else if ( coords1[0].y < coords1[1].y )
-                    // Diagonally down
-                    for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].y + i ][ coords1[0].x + i ] = word[Math.abs( i - reverse )]
-                else {
-                    // Diagonally up
-                    for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].y - i ][ coords1[0].x + i ] = word[Math.abs( i - reverse )]
-                }
 
-                break
+                console.log( coords1 )
+
+                // TODO Maybe verify that this works
+                switch ( wordDirection ) {
+
+                    case WORD_DIRECTION.HORIZONTAL:
+                         // Insert word across
+                        for ( let i = 0; i < word.length; i++ )
+                            board[ coords1[0].x + i ][ coords1[0].y ] = word[Math.abs( i - reverse )]
+                    case WORD_DIRECTION.VERTICAL:
+                         // Insert word down
+                        for ( let i = 0; i < word.length; i++ )
+                            board[ coords1[0].x ][ coords1[0].y + i] = word[Math.abs( i - reverse )]
+                    case WORD_DIRECTION.DIAGONAL:
+                        if ( coords1[0].y < coords1[1].y )
+                            // Diagonally down
+                            for ( let i = 0; i < word.length; i++ )
+                                board[ coords1[0].x + i ][ coords1[0].y + i ] = word[Math.abs( i - reverse )]
+                        else {
+                            // Diagonally up
+                            for ( let i = 0; i < word.length; i++ )
+                                board[ coords1[0].x + i ][ coords1[0].y - i ] = word[Math.abs( i - reverse )]
+                     }
+                }
 
             }
 
@@ -218,7 +230,7 @@ function Board( props ) {
     // TODO Fix resizing(Position and size better)
     // TODO Figure out how to do this with a reference 
     let resizeBoard = () => setBoardStyle( {
-        ...startBoardStyle,
+        ...styles.startBoard,
         left: window.innerWidth * 0.5 - boardDOM.current.width.baseVal.value / 2,
         top: window.innerHeight * 0.5 - boardDOM.current.height.baseVal.value / 2,
     } )
@@ -253,15 +265,36 @@ function Board( props ) {
             let coords = wordCoords.current[answerIndex]
             let start = coords[0]
             let end = coords[1]
+            let wordDirection = coords[2]
 
-            let letterWidth = SVGStyle.width / 12
-            let letterHeight = SVGStyle.height / 12
+            let letterWidth = styles.svg.width / 12
+            let letterHeight = styles.svg.height / 12
+
+            let x1 = letterWidth * start.x
+            let y1 = letterHeight * start.y
+            let x2 = letterWidth * end.x
+            let y2 = letterHeight * end.y
+
+            // TODO Finish this(Not precises/Diagonal positioning)
+            switch ( wordDirection ) {
+                case WORD_DIRECTION.HORIZONTAL:
+                    y1 += letterWidth/2
+                    y2 += letterWidth/2
+                    break
+                case WORD_DIRECTION.VERTICAL:
+                    x1 += letterWidth/2
+                    x2 += letterWidth/2
+                    break
+                case WORD_DIRECTION.DIAGONAL:
+                    
+                    break
+            }
 
             newLines.push( <line
-                x1={letterWidth * start.x }
-                y1={letterHeight * start.y }
-                x2={letterWidth * end.x }
-                y2={letterHeight * end.y }
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
                 style={{
                     stroke: "red",
                     strokeWidth: 4,
@@ -274,24 +307,21 @@ function Board( props ) {
         }
     }, [ props.answer ] )
 
-    let xCount = 1
+    let xCount = 0
 
-    return ( <svg style={boardStyle} ref={boardDOM} width={SVGStyle.width} height={SVGStyle.height}>
+    return ( <svg style={boardStyle} ref={boardDOM} width={styles.svg.width} height={styles.svg.height}>
         {/* Background */}
-        <rect width={SVGStyle.width} height={SVGStyle.height} rx={10} fill="white" />
+        <rect width={styles.svg.width} height={styles.svg.height} rx={10} fill="white" />
         {/* Board content */}
         {/* TODO Fix letter spacing */}
-        <text x={0} y={0} fontSize={FONT_SIZE}>{
+        <text style={styles.boardText} x={0} y={0}>{
             board.map( ( i ) => { 
-                // console.log( boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2 )
-                // console.log( SVGStyle.width )
-                console.log( i )
                 return <tspan
-                    x={SVGStyle.width * 0.5 - boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2}
-                    y={xCount++ * COLUMN_SIZE}
-                    textLength={SVGStyle.width*0.9}
+                    x={styles.svg.width/BOARD_SIZE * ++xCount - styles.svg.width*0.035}
+                    y={0}
+                    textLength={styles.svg.width*0.9}
                 >
-                
+                {i}
             </tspan> } )
 }</text>
         {lines}

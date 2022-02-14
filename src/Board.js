@@ -23,18 +23,24 @@ var WORD_DIRECTION = {
     DIAGONAL: 2
 
     // Style
-};var startBoardStyle = {
-    position: "fixed"
-};
 
-var foundWordStyle = {
-    textDecoration: "line-through",
-    textDecorationColor: "red"
-};
-
-var SVGStyle = {
-    width: window.innerWidth * 0.431,
-    height: COLUMN_SIZE * 12
+};var styles = {
+    startBoard: {
+        position: "fixed"
+    },
+    foundWord: {
+        textDecoration: "line-through",
+        textDecorationColor: "red"
+    },
+    svg: {
+        width: window.innerWidth * 0.431,
+        height: COLUMN_SIZE * 12
+    },
+    boardText: {
+        fontSize: FONT_SIZE,
+        writingMode: "tb",
+        textOrientation: "upright"
+    }
 
     // Generate a number between 0 and n-1
 };var random = function random(n) {
@@ -70,7 +76,7 @@ function Board(props) {
 
     var wordCoords = useRef([]);
 
-    var _useState7 = useState(startBoardStyle),
+    var _useState7 = useState(styles.startBoard),
         _useState8 = _slicedToArray(_useState7, 2),
         boardStyle = _useState8[0],
         setBoardStyle = _useState8[1];
@@ -131,10 +137,10 @@ function Board(props) {
         var end = new Point(0, 0);
 
         // Randomly determine if word is horizontal, vertical, or diagonal
-        var accrossOrDown = random(Object.keys(WORD_DIRECTION).length);
+        var wordDirection = random(Object.keys(WORD_DIRECTION).length);
 
         // Generate coordinates based on direction
-        switch (accrossOrDown) {
+        switch (wordDirection) {
 
             case WORD_DIRECTION.HORIZONTAL:
                 start = new Point(b, a);
@@ -159,7 +165,7 @@ function Board(props) {
 
         }
 
-        return [start, end];
+        return [start, end, wordDirection];
     };
 
     // Insert given word
@@ -193,26 +199,31 @@ function Board(props) {
                 // Reverse 
                 if (random(2) && random(2)) reverse = word.length - 1;
 
-                if (coords1[0].y === coords1[1].y)
-                    // Insert word across
-                    for (var i = 0; i < word.length; i++) {
-                        board[coords1[0].y][coords1[0].x + i] = word[Math.abs(i - reverse)];
-                    } else if (coords1[0].x === coords1[1].x)
-                    // Insert word down
-                    for (var _i3 = 0; _i3 < word.length; _i3++) {
-                        board[coords1[0].y + _i3][coords1[0].x] = word[Math.abs(_i3 - reverse)];
-                    } else if (coords1[0].y < coords1[1].y)
-                    // Diagonally down
-                    for (var _i4 = 0; _i4 < word.length; _i4++) {
-                        board[coords1[0].y + _i4][coords1[0].x + _i4] = word[Math.abs(_i4 - reverse)];
-                    } else {
-                    // Diagonally up
-                    for (var _i5 = 0; _i5 < word.length; _i5++) {
-                        board[coords1[0].y - _i5][coords1[0].x + _i5] = word[Math.abs(_i5 - reverse)];
-                    }
-                }
+                console.log(coords1);
 
-                break;
+                // TODO Maybe verify that this works
+                switch (wordDirection) {
+
+                    case WORD_DIRECTION.HORIZONTAL:
+                        // Insert word across
+                        for (var i = 0; i < word.length; i++) {
+                            board[coords1[0].x + i][coords1[0].y] = word[Math.abs(i - reverse)];
+                        }case WORD_DIRECTION.VERTICAL:
+                        // Insert word down
+                        for (var _i3 = 0; _i3 < word.length; _i3++) {
+                            board[coords1[0].x][coords1[0].y + _i3] = word[Math.abs(_i3 - reverse)];
+                        }case WORD_DIRECTION.DIAGONAL:
+                        if (coords1[0].y < coords1[1].y)
+                            // Diagonally down
+                            for (var _i4 = 0; _i4 < word.length; _i4++) {
+                                board[coords1[0].x + _i4][coords1[0].y + _i4] = word[Math.abs(_i4 - reverse)];
+                            } else {
+                            // Diagonally up
+                            for (var _i5 = 0; _i5 < word.length; _i5++) {
+                                board[coords1[0].x + _i5][coords1[0].y - _i5] = word[Math.abs(_i5 - reverse)];
+                            }
+                        }
+                }
             }
         }
     };
@@ -220,7 +231,7 @@ function Board(props) {
     // TODO Fix resizing(Position and size better)
     // TODO Figure out how to do this with a reference 
     var resizeBoard = function resizeBoard() {
-        return setBoardStyle(Object.assign({}, startBoardStyle, {
+        return setBoardStyle(Object.assign({}, styles.startBoard, {
             left: window.innerWidth * 0.5 - boardDOM.current.width.baseVal.value / 2,
             top: window.innerHeight * 0.5 - boardDOM.current.height.baseVal.value / 2
         }));
@@ -255,15 +266,36 @@ function Board(props) {
             var coords = wordCoords.current[answerIndex];
             var start = coords[0];
             var end = coords[1];
+            var _wordDirection = coords[2];
 
-            var letterWidth = SVGStyle.width / 12;
-            var letterHeight = SVGStyle.height / 12;
+            var letterWidth = styles.svg.width / 12;
+            var letterHeight = styles.svg.height / 12;
+
+            var x1 = letterWidth * start.x;
+            var y1 = letterHeight * start.y;
+            var x2 = letterWidth * end.x;
+            var y2 = letterHeight * end.y;
+
+            // TODO Finish this(Not precises/Diagonal positioning)
+            switch (_wordDirection) {
+                case WORD_DIRECTION.HORIZONTAL:
+                    y1 += letterWidth / 2;
+                    y2 += letterWidth / 2;
+                    break;
+                case WORD_DIRECTION.VERTICAL:
+                    x1 += letterWidth / 2;
+                    x2 += letterWidth / 2;
+                    break;
+                case WORD_DIRECTION.DIAGONAL:
+
+                    break;
+            }
 
             newLines.push(React.createElement("line", {
-                x1: letterWidth * start.x,
-                y1: letterHeight * start.y,
-                x2: letterWidth * end.x,
-                y2: letterHeight * end.y,
+                x1: x1,
+                y1: y1,
+                x2: x2,
+                y2: y2,
                 style: {
                     stroke: "red",
                     strokeWidth: 4
@@ -274,24 +306,25 @@ function Board(props) {
         }
     }, [props.answer]);
 
-    var xCount = 1;
+    var xCount = 0;
 
     return React.createElement(
         "svg",
-        { style: boardStyle, ref: boardDOM, width: SVGStyle.width, height: SVGStyle.height },
-        React.createElement("rect", { width: SVGStyle.width, height: SVGStyle.height, rx: 10, fill: "white" }),
+        { style: boardStyle, ref: boardDOM, width: styles.svg.width, height: styles.svg.height },
+        React.createElement("rect", { width: styles.svg.width, height: styles.svg.height, rx: 10, fill: "white" }),
         React.createElement(
             "text",
-            { x: 0, y: 0, fontSize: FONT_SIZE },
+            { style: styles.boardText, x: 0, y: 0 },
             board.map(function (i) {
-                // console.log( boardDOM.current.children.item( 1 ).getComputedTextLength() / 12 / 2 )
-                // console.log( SVGStyle.width )
-                console.log(i);
-                return React.createElement("tspan", {
-                    x: SVGStyle.width * 0.5 - boardDOM.current.children.item(1).getComputedTextLength() / 12 / 2,
-                    y: xCount++ * COLUMN_SIZE,
-                    textLength: SVGStyle.width * 0.9
-                });
+                return React.createElement(
+                    "tspan",
+                    {
+                        x: styles.svg.width / BOARD_SIZE * ++xCount - styles.svg.width * 0.035,
+                        y: 0,
+                        textLength: styles.svg.width * 0.9
+                    },
+                    i
+                );
             })
         ),
         lines
