@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Board from "./Board";
 
+// TODO Add aesthetics
 // App container
 function App() {
     var _useState = useState(""),

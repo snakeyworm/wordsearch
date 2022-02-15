@@ -20,7 +20,8 @@ var INVALID_WORDS_MSG = "Invalid words provided:";
 var WORD_DIRECTION = {
     HORIZONTAL: 0,
     VERTICAL: 1,
-    DIAGONAL: 2
+    DIAGONAL_UP: 2,
+    DIAGONAL_DOWN: 3
 
     // Style
 
@@ -34,7 +35,7 @@ var WORD_DIRECTION = {
     },
     svg: {
         width: window.innerWidth * 0.431,
-        height: COLUMN_SIZE * 12
+        height: COLUMN_SIZE * BOARD_SIZE
     },
     boardText: {
         fontSize: FONT_SIZE,
@@ -42,8 +43,13 @@ var WORD_DIRECTION = {
         textOrientation: "upright"
     }
 
-    // Generate a number between 0 and n-1
-};var random = function random(n) {
+    // Constants(Some constants rely on style declaration)
+
+};var LETTER_WIDTH = styles.svg.width / BOARD_SIZE;
+var LETTER_HEIGHT = styles.svg.height / BOARD_SIZE;
+
+// Generate a number between 0 and n-1
+var random = function random(n) {
     return Math.floor(Math.random() * n);
 };
 
@@ -150,17 +156,21 @@ function Board(props) {
                 start = new Point(a, b);
                 end = new Point(a, b + word.length);
                 break;
-            case WORD_DIRECTION.DIAGONAL:
+            case WORD_DIRECTION.DIAGONAL_UP:
+            case WORD_DIRECTION.DIAGONAL_DOWN:
 
                 start = new Point(random(BOARD_SIZE - word.length + 1), random(BOARD_SIZE - word.length + 1));
 
+                // TODO Maybe have wordDirection determine up/down not available space
                 if (random(2) && start.y + word.length - 1 - (word.length - 1) >= 0) {
                     // Diagonal down
                     end = new Point(start.x + word.length - 1, start.y + word.length - 1);
+                    wordDirection = WORD_DIRECTION.DIAGONAL_DOWN;
                 } else {
                     start.y += word.length - 1;
                     // Diagonal up
                     end = new Point(start.x + word.length - 1, start.y - (word.length - 1));
+                    wordDirection = WORD_DIRECTION.DIAGONAL_UP;
                 }
 
         }
@@ -199,31 +209,29 @@ function Board(props) {
                 // Reverse 
                 if (random(2) && random(2)) reverse = word.length - 1;
 
-                console.log(coords1);
-
-                // TODO Maybe verify that this works
-                switch (wordDirection) {
-
-                    case WORD_DIRECTION.HORIZONTAL:
-                        // Insert word across
-                        for (var i = 0; i < word.length; i++) {
-                            board[coords1[0].x + i][coords1[0].y] = word[Math.abs(i - reverse)];
-                        }case WORD_DIRECTION.VERTICAL:
-                        // Insert word down
-                        for (var _i3 = 0; _i3 < word.length; _i3++) {
-                            board[coords1[0].x][coords1[0].y + _i3] = word[Math.abs(_i3 - reverse)];
-                        }case WORD_DIRECTION.DIAGONAL:
-                        if (coords1[0].y < coords1[1].y)
-                            // Diagonally down
-                            for (var _i4 = 0; _i4 < word.length; _i4++) {
-                                board[coords1[0].x + _i4][coords1[0].y + _i4] = word[Math.abs(_i4 - reverse)];
-                            } else {
-                            // Diagonally up
-                            for (var _i5 = 0; _i5 < word.length; _i5++) {
-                                board[coords1[0].x + _i5][coords1[0].y - _i5] = word[Math.abs(_i5 - reverse)];
-                            }
-                        }
+                // TODO Maybe make a switch statement
+                if (coords1[0].y === coords1[1].y)
+                    // Insert word across
+                    for (var i = 0; i < word.length; i++) {
+                        board[coords1[0].x + i][coords1[0].y] = word[Math.abs(i - reverse)];
+                    } else if (coords1[0].x === coords1[1].x)
+                    // Insert word down
+                    for (var _i3 = 0; _i3 < word.length; _i3++) {
+                        board[coords1[0].x][coords1[0].y + _i3] = word[Math.abs(_i3 - reverse)];
+                    } else if (coords1[0].y < coords1[1].y)
+                    // Diagonally down
+                    for (var _i4 = 0; _i4 < word.length; _i4++) {
+                        board[coords1[0].x + _i4][coords1[0].y + _i4] = word[Math.abs(_i4 - reverse)];
+                    } else {
+                    // Diagonally up
+                    for (var _i5 = 0; _i5 < word.length; _i5++) {
+                        board[coords1[0].x + _i5][coords1[0].y - _i5] = word[Math.abs(_i5 - reverse)];
+                    }
                 }
+
+                console.log(word + " " + coords1[2]); // TODO Remove when done
+
+                break;
             }
         }
     };
@@ -254,7 +262,6 @@ function Board(props) {
     // Resize on board change(For initial render)
     useEffect(resizeBoard, [board]);
 
-    // TODO Respond to user finding a word(Doesn't render response for some reason)
     // Check for an answer
     useEffect(function () {
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
@@ -266,28 +273,31 @@ function Board(props) {
             var coords = wordCoords.current[answerIndex];
             var start = coords[0];
             var end = coords[1];
-            var _wordDirection = coords[2];
+            var wordDirection = coords[2];
+            var diagonalAdjustment = (BOARD_SIZE - end.y) * 2;
 
-            var letterWidth = styles.svg.width / 12;
-            var letterHeight = styles.svg.height / 12;
+            var x1 = LETTER_WIDTH * start.x;
+            var y1 = LETTER_HEIGHT * start.y;
+            var x2 = LETTER_WIDTH * end.x;
+            var y2 = LETTER_HEIGHT * end.y;
 
-            var x1 = letterWidth * start.x;
-            var y1 = letterHeight * start.y;
-            var x2 = letterWidth * end.x;
-            var y2 = letterHeight * end.y;
-
-            // TODO Finish this(Not precises/Diagonal positioning)
-            switch (_wordDirection) {
+            // TODO Improve precision of line placement and ensure portability
+            switch (wordDirection) {
                 case WORD_DIRECTION.HORIZONTAL:
-                    y1 += letterWidth / 2;
-                    y2 += letterWidth / 2;
+                    y1 += LETTER_WIDTH / 2;
+                    y2 += LETTER_WIDTH / 2;
                     break;
                 case WORD_DIRECTION.VERTICAL:
-                    x1 += letterWidth / 2;
-                    x2 += letterWidth / 2;
+                    x1 += LETTER_WIDTH / 2;
+                    x2 += LETTER_WIDTH / 2;
                     break;
-                case WORD_DIRECTION.DIAGONAL:
-
+                case WORD_DIRECTION.DIAGONAL_UP:
+                    x2 += LETTER_WIDTH;
+                    y1 += LETTER_HEIGHT / 2 + diagonalAdjustment;
+                    break;
+                case WORD_DIRECTION.DIAGONAL_DOWN:
+                    x2 += LETTER_WIDTH;
+                    y2 += LETTER_HEIGHT / 2 - diagonalAdjustment;
                     break;
             }
 

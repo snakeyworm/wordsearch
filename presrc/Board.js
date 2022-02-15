@@ -17,7 +17,8 @@ const INVALID_WORDS_MSG = "Invalid words provided:"
 const WORD_DIRECTION = {
     HORIZONTAL: 0,
     VERTICAL: 1,
-    DIAGONAL: 2,
+    DIAGONAL_UP: 2,
+    DIAGONAL_DOWN: 3,
 }
 
 // Style
@@ -32,7 +33,7 @@ const styles = {
     },
     svg: {
         width: window.innerWidth * 0.431,
-        height: COLUMN_SIZE * 12,
+        height: COLUMN_SIZE * BOARD_SIZE,
     },
     boardText: {
         fontSize: FONT_SIZE,
@@ -40,6 +41,11 @@ const styles = {
         textOrientation: "upright",
     },
 }
+
+// Constants(Some constants rely on style declaration)
+
+const LETTER_WIDTH = styles.svg.width / BOARD_SIZE
+const LETTER_HEIGHT = styles.svg.height / BOARD_SIZE
 
 // Generate a number between 0 and n-1
 let random = ( n ) => Math.floor( Math.random() * n ) 
@@ -54,7 +60,6 @@ function Board( props ) {
      * 
      */
 
-    // TODO Store columns in board not arrays to format text alignment better
     let [ board, setBoard ] = useState( [] ) // Board data
     let [ lines, setLines ] = useState( [] )
     let [ renderSwitch, reRender ] = useState( true ) // TODO Remove if not needed
@@ -136,22 +141,26 @@ function Board( props ) {
                 start = new Point( a, b )
                 end = new Point( a, b + word.length ) 
                 break
-            case WORD_DIRECTION.DIAGONAL:
+            case WORD_DIRECTION.DIAGONAL_UP:
+            case WORD_DIRECTION.DIAGONAL_DOWN:
 
                 start = new Point(
                     random( BOARD_SIZE - word.length + 1 ),
                     random( BOARD_SIZE - word.length + 1 )
                 )
 
+                // TODO Maybe have wordDirection determine up/down not available space
                 if ( random( 2 ) && start.y + word.length - 1 - ( word.length - 1 ) >= 0 ) {
                     // Diagonal down
                     end = new Point( start.x + word.length - 1, start.y + word.length - 1 )
+                    wordDirection = WORD_DIRECTION.DIAGONAL_DOWN
                 } else {
                     start.y += word.length - 1
                     // Diagonal up
                     end = new Point( start.x + word.length - 1, start.y - ( word.length - 1 ) )
+                    wordDirection = WORD_DIRECTION.DIAGONAL_UP
                 }
-                    
+                
         }
 
         return [
@@ -195,30 +204,28 @@ function Board( props ) {
                 if ( random( 2 ) && random( 2 ) )
                     reverse = word.length - 1
 
-                console.log( coords1 )
-
-                // TODO Maybe verify that this works
-                switch ( wordDirection ) {
-
-                    case WORD_DIRECTION.HORIZONTAL:
-                         // Insert word across
-                        for ( let i = 0; i < word.length; i++ )
-                            board[ coords1[0].x + i ][ coords1[0].y ] = word[Math.abs( i - reverse )]
-                    case WORD_DIRECTION.VERTICAL:
-                         // Insert word down
-                        for ( let i = 0; i < word.length; i++ )
-                            board[ coords1[0].x ][ coords1[0].y + i] = word[Math.abs( i - reverse )]
-                    case WORD_DIRECTION.DIAGONAL:
-                        if ( coords1[0].y < coords1[1].y )
-                            // Diagonally down
-                            for ( let i = 0; i < word.length; i++ )
-                                board[ coords1[0].x + i ][ coords1[0].y + i ] = word[Math.abs( i - reverse )]
-                        else {
-                            // Diagonally up
-                            for ( let i = 0; i < word.length; i++ )
-                                board[ coords1[0].x + i ][ coords1[0].y - i ] = word[Math.abs( i - reverse )]
-                     }
+                // TODO Maybe make a switch statement
+                if ( coords1[0].y === coords1[1].y )
+                    // Insert word across
+                    for ( let i = 0; i < word.length; i++ )
+                        board[ coords1[0].x + i ][ coords1[0].y ] = word[Math.abs( i - reverse )]
+                else if ( coords1[0].x === coords1[1].x )
+                    // Insert word down
+                    for ( let i = 0; i < word.length; i++ )
+                        board[ coords1[0].x ][ coords1[0].y + i ] = word[Math.abs( i - reverse )]
+                else if ( coords1[0].y < coords1[1].y )
+                    // Diagonally down
+                    for ( let i = 0; i < word.length; i++ )
+                        board[ coords1[0].x + i ][ coords1[0].y + i ] = word[Math.abs( i - reverse )]
+                else {
+                    // Diagonally up
+                    for ( let i = 0; i < word.length; i++ )
+                        board[ coords1[0].x + i ][ coords1[0].y - i ] = word[Math.abs( i - reverse )]
                 }
+
+                console.log( `${word} ${coords1[2]}` ) // TODO Remove when done
+
+                break
 
             }
 
@@ -253,7 +260,6 @@ function Board( props ) {
     // Resize on board change(For initial render)
     useEffect( resizeBoard, [ board ] )
 
-    // TODO Respond to user finding a word(Doesn't render response for some reason)
     // Check for an answer
     useEffect( () => {
         let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
@@ -266,27 +272,30 @@ function Board( props ) {
             let start = coords[0]
             let end = coords[1]
             let wordDirection = coords[2]
+            let diagonalAdjustment = ( BOARD_SIZE - end.y ) * 2
 
-            let letterWidth = styles.svg.width / 12
-            let letterHeight = styles.svg.height / 12
+            let x1 = LETTER_WIDTH * start.x
+            let y1 = LETTER_HEIGHT * start.y
+            let x2 = LETTER_WIDTH * end.x
+            let y2 = LETTER_HEIGHT * end.y
 
-            let x1 = letterWidth * start.x
-            let y1 = letterHeight * start.y
-            let x2 = letterWidth * end.x
-            let y2 = letterHeight * end.y
-
-            // TODO Finish this(Not precises/Diagonal positioning)
+            // TODO Improve precision of line placement and ensure portability
             switch ( wordDirection ) {
                 case WORD_DIRECTION.HORIZONTAL:
-                    y1 += letterWidth/2
-                    y2 += letterWidth/2
+                    y1 += LETTER_WIDTH/2
+                    y2 += LETTER_WIDTH/2
                     break
                 case WORD_DIRECTION.VERTICAL:
-                    x1 += letterWidth/2
-                    x2 += letterWidth/2
+                    x1 += LETTER_WIDTH/2
+                    x2 += LETTER_WIDTH/2
                     break
-                case WORD_DIRECTION.DIAGONAL:
-                    
+                case WORD_DIRECTION.DIAGONAL_UP:
+                    x2 += LETTER_WIDTH
+                    y1 += LETTER_HEIGHT/2 + diagonalAdjustment
+                    break
+                case WORD_DIRECTION.DIAGONAL_DOWN:
+                    x2 += LETTER_WIDTH
+                    y2 += LETTER_HEIGHT/2 - diagonalAdjustment
                     break
             }
 
@@ -300,7 +309,6 @@ function Board( props ) {
                     strokeWidth: 4,
                 }}
             /> )
-    
             
             setLines( newLines )
             
@@ -313,7 +321,6 @@ function Board( props ) {
         {/* Background */}
         <rect width={styles.svg.width} height={styles.svg.height} rx={10} fill="white" />
         {/* Board content */}
-        {/* TODO Fix letter spacing */}
         <text style={styles.boardText} x={0} y={0}>{
             board.map( ( i ) => { 
                 return <tspan
