@@ -5,6 +5,14 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import Board from "./Board"
 
+const styles = {
+    inputField: {
+        position: "absolute",
+        left: "50%",
+        transform: "translate( -50%, -50% )",
+    }
+}
+
 // TODO Add aesthetics
 // App container
 function App() {
@@ -17,7 +25,7 @@ function App() {
     }
 
     return ( <div>
-        <input type="text" value={input} onChange={handleChange}></input>
+        <input style={styles.inputField} type="text" value={input} onChange={handleChange}></input>
         <Board words={words} answer={input} />
     </div> )
 

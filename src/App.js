@@ -6,9 +6,16 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import Board from "./Board";
 
-// TODO Add aesthetics
-// App container
-function App() {
+var styles = {
+    inputField: {
+        position: "absolute",
+        left: "50%",
+        transform: "translate( -50%, -50% )"
+    }
+
+    // TODO Add aesthetics
+    // App container
+};function App() {
     var _useState = useState(""),
         _useState2 = _slicedToArray(_useState, 2),
         input = _useState2[0],
@@ -26,7 +33,7 @@ function App() {
     return React.createElement(
         "div",
         null,
-        React.createElement("input", { type: "text", value: input, onChange: handleChange }),
+        React.createElement("input", { style: styles.inputField, type: "text", value: input, onChange: handleChange }),
         React.createElement(Board, { words: words, answer: input })
     );
 }

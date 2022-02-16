@@ -238,8 +238,9 @@ function Board( props ) {
     // TODO Figure out how to do this with a reference 
     let resizeBoard = () => setBoardStyle( {
         ...styles.startBoard,
-        left: window.innerWidth * 0.5 - boardDOM.current.width.baseVal.value / 2,
-        top: window.innerHeight * 0.5 - boardDOM.current.height.baseVal.value / 2,
+        left: "50%",
+        top: "50%",
+        transform: "translate( -50%, -50% )"
     } )
 
     useEffect( () => {
