@@ -26,27 +26,40 @@ var WORD_DIRECTION = {
     // Style
 
 };var styles = {
-    startBoard: {
-        position: "fixed"
+    board: {
+        position: "fixed",
+        width: window.innerWidth * 0.431,
+        height: COLUMN_SIZE * BOARD_SIZE,
+        left: "50%",
+        top: "50%",
+        transform: "translate( -50%, -50% )"
+    },
+    boardRect: {
+        width: "100%",
+        height: "100%",
+        rx: 10,
+        fill: "white"
     },
     foundWord: {
         textDecoration: "line-through",
         textDecorationColor: "red"
     },
-    svg: {
-        width: window.innerWidth * 0.431,
-        height: COLUMN_SIZE * BOARD_SIZE
-    },
     boardText: {
+        x: 0,
+        y: 0,
         fontSize: FONT_SIZE,
         writingMode: "tb",
         textOrientation: "upright"
+    },
+    wordStroke: {
+        stroke: "red",
+        strokeWidth: window.innerWidth * 0.005
     }
 
     // Constants(Some constants rely on style declaration)
 
-};var LETTER_WIDTH = styles.svg.width / BOARD_SIZE;
-var LETTER_HEIGHT = styles.svg.height / BOARD_SIZE;
+};var LETTER_WIDTH = styles.board.width / BOARD_SIZE;
+var LETTER_HEIGHT = styles.board.height / BOARD_SIZE;
 
 // Generate a number between 0 and n-1
 var random = function random(n) {
@@ -81,12 +94,6 @@ function Board(props) {
 
 
     var wordCoords = useRef([]);
-
-    var _useState7 = useState(styles.startBoard),
-        _useState8 = _slicedToArray(_useState7, 2),
-        boardStyle = _useState8[0],
-        setBoardStyle = _useState8[1];
-
     var boardDOM = useRef(null);
 
     var populateBoard = function populateBoard() {
@@ -236,32 +243,10 @@ function Board(props) {
         }
     };
 
-    // TODO Fix resizing(Position and size better)
-    // TODO Figure out how to do this with a reference 
-    var resizeBoard = function resizeBoard() {
-        return setBoardStyle(Object.assign({}, styles.startBoard, {
-            left: "50%",
-            top: "50%",
-            transform: "translate( -50%, -50% )"
-        }));
-    };
-
-    useEffect(function () {
-
-        populateBoard();
-        resizeBoard(); // Initial resize
-
-        // Adjust font on window resize
-        window.onresize = function () {
-            resizeBoard();
-        };
-    }, []);
+    useEffect(populateBoard, []);
 
     // Populate board when new words are received
     useEffect(populateBoard, [props.words]);
-
-    // Resize on board change(For initial render)
-    useEffect(resizeBoard, [board]);
 
     // Check for an answer
     useEffect(function () {
@@ -302,15 +287,14 @@ function Board(props) {
                     break;
             }
 
+            console.log(styles.wordStroke);
+
             newLines.push(React.createElement("line", {
                 x1: x1,
                 y1: y1,
                 x2: x2,
                 y2: y2,
-                style: {
-                    stroke: "red",
-                    strokeWidth: 4
-                }
+                style: styles.wordStroke
             }));
 
             setLines(newLines);
@@ -321,18 +305,18 @@ function Board(props) {
 
     return React.createElement(
         "svg",
-        { style: boardStyle, ref: boardDOM, width: styles.svg.width, height: styles.svg.height },
-        React.createElement("rect", { width: styles.svg.width, height: styles.svg.height, rx: 10, fill: "white" }),
+        { style: styles.board, ref: boardDOM },
+        React.createElement("rect", { style: styles.boardRect }),
         React.createElement(
             "text",
-            { style: styles.boardText, x: 0, y: 0 },
+            { style: styles.boardText },
             board.map(function (i) {
                 return React.createElement(
                     "tspan",
                     {
-                        x: styles.svg.width / BOARD_SIZE * ++xCount - styles.svg.width * 0.035,
+                        x: styles.board.width / BOARD_SIZE * ++xCount - styles.board.width * 0.035,
                         y: 0,
-                        textLength: styles.svg.width * 0.9
+                        textLength: styles.board.width * 0.9
                     },
                     i
                 );

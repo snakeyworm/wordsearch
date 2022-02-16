@@ -24,28 +24,41 @@ const WORD_DIRECTION = {
 // Style
 
 const styles = {
-    startBoard: {
+    board: {
         position: "fixed",
+        width: window.innerWidth * 0.431,
+        height: COLUMN_SIZE * BOARD_SIZE,
+        left: "50%",
+        top: "50%",
+        transform: "translate( -50%, -50% )",
+    },
+    boardRect: {
+        width: "100%",
+        height: "100%",
+        rx: 10,
+        fill: "white",
     },
     foundWord: {
         textDecoration: "line-through",
         textDecorationColor: "red",
     },
-    svg: {
-        width: window.innerWidth * 0.431,
-        height: COLUMN_SIZE * BOARD_SIZE,
-    },
     boardText: {
+        x: 0,
+        y: 0,
         fontSize: FONT_SIZE,
         writingMode: "tb",
         textOrientation: "upright",
     },
+    wordStroke: {
+        stroke: "red",
+        strokeWidth: window.innerWidth*0.005,
+    }
 }
 
 // Constants(Some constants rely on style declaration)
 
-const LETTER_WIDTH = styles.svg.width / BOARD_SIZE
-const LETTER_HEIGHT = styles.svg.height / BOARD_SIZE
+const LETTER_WIDTH = styles.board.width / BOARD_SIZE
+const LETTER_HEIGHT = styles.board.height / BOARD_SIZE
 
 // Generate a number between 0 and n-1
 let random = ( n ) => Math.floor( Math.random() * n ) 
@@ -64,7 +77,6 @@ function Board( props ) {
     let [ lines, setLines ] = useState( [] )
     let [ renderSwitch, reRender ] = useState( true ) // TODO Remove if not needed
     let wordCoords = useRef( [] )
-    let [ boardStyle, setBoardStyle ] = useState( styles.startBoard )
     let boardDOM = useRef( null )
 
     let populateBoard = () => {
@@ -234,32 +246,10 @@ function Board( props ) {
 
     }
 
-    // TODO Fix resizing(Position and size better)
-    // TODO Figure out how to do this with a reference 
-    let resizeBoard = () => setBoardStyle( {
-        ...styles.startBoard,
-        left: "50%",
-        top: "50%",
-        transform: "translate( -50%, -50% )"
-    } )
-
-    useEffect( () => {
-
-        populateBoard()
-        resizeBoard() // Initial resize
-
-        // Adjust font on window resize
-        window.onresize = () => {
-            resizeBoard()
-        }
-
-    }, [] )
+    useEffect( populateBoard, [] )
 
     // Populate board when new words are received
     useEffect( populateBoard, [ props.words ] )
-
-    // Resize on board change(For initial render)
-    useEffect( resizeBoard, [ board ] )
 
     // Check for an answer
     useEffect( () => {
@@ -300,15 +290,14 @@ function Board( props ) {
                     break
             }
 
+            console.log( styles.wordStroke )
+
             newLines.push( <line
                 x1={x1}
                 y1={y1}
                 x2={x2}
                 y2={y2}
-                style={{
-                    stroke: "red",
-                    strokeWidth: 4,
-                }}
+                style={styles.wordStroke}
             /> )
             
             setLines( newLines )
@@ -318,16 +307,16 @@ function Board( props ) {
 
     let xCount = 0
 
-    return ( <svg style={boardStyle} ref={boardDOM} width={styles.svg.width} height={styles.svg.height}>
+    return ( <svg style={styles.board} ref={boardDOM}>
         {/* Background */}
-        <rect width={styles.svg.width} height={styles.svg.height} rx={10} fill="white" />
+        <rect style={styles.boardRect} />
         {/* Board content */}
-        <text style={styles.boardText} x={0} y={0}>{
+        <text style={styles.boardText} >{
             board.map( ( i ) => { 
                 return <tspan
-                    x={styles.svg.width/BOARD_SIZE * ++xCount - styles.svg.width*0.035}
+                    x={styles.board.width/BOARD_SIZE * ++xCount - styles.board.width*0.035}
                     y={0}
-                    textLength={styles.svg.width*0.9}
+                    textLength={styles.board.width*0.9}
                 >
                 {i}
             </tspan> } )
