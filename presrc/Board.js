@@ -1,14 +1,16 @@
 
 import React, { useState, useRef, useEffect, } from "react"
+import { render } from "react-dom";
 import { doIntersect, Point } from "./mutils";
 
 // Constants
 
 // TODO Maybe make board bigger
-const BOARD_SIZE = 12
+const BOARD_SIZE = 11
 const BOARD_AREA = BOARD_SIZE * BOARD_SIZE
-const FONT_SIZE = window.innerWidth * 0.047 // Size for board font
-const COLUMN_SIZE = FONT_SIZE*0.7 // Size of each column
+const BOARD_WIDTH = 0.5
+const BOARD_HEIGHT = 0.9
+const FS_FACTOR = 5 // Used in calculation of responsive font size
 
 const INVALID_WORDS_MSG = "Invalid words provided:"
 
@@ -26,8 +28,6 @@ const WORD_DIRECTION = {
 const styles = {
     board: {
         position: "fixed",
-        width: window.innerWidth * 0.431,
-        height: COLUMN_SIZE * BOARD_SIZE,
         left: "50%",
         top: "50%",
         transform: "translate( -50%, -50% )",
@@ -43,25 +43,19 @@ const styles = {
         textDecorationColor: "red",
     },
     boardText: {
-        x: 0,
-        y: 0,
-        fontSize: FONT_SIZE,
         writingMode: "tb",
         textOrientation: "upright",
     },
     wordStroke: {
         stroke: "red",
-        strokeWidth: window.innerWidth*0.005,
+        strokeWidth: window.innerWidth * 0.005,
     }
 }
 
 // Constants(Some constants rely on style declaration)
 
-const LETTER_WIDTH = styles.board.width / BOARD_SIZE
-const LETTER_HEIGHT = styles.board.height / BOARD_SIZE
-
 // Generate a number between 0 and n-1
-let random = ( n ) => Math.floor( Math.random() * n ) 
+let random = ( n ) => Math.floor( Math.random() * n )
 
 // Component for game board
 function Board( props ) {
@@ -75,7 +69,15 @@ function Board( props ) {
 
     let [ board, setBoard ] = useState( [] ) // Board data
     let [ lines, setLines ] = useState( [] )
-    let [ renderSwitch, reRender ] = useState( true ) // TODO Remove if not needed
+
+    let [ styleOffset, setStyleOffset ] = useState( {
+        // Calculate board dimensions
+        width: window.screen.width * BOARD_WIDTH,
+        height: window.innerHeight * BOARD_HEIGHT,
+        // Calculate dimensions of letter on board
+        letterWidth: window.screen.wdith * BOARD_WIDTH / BOARD_SIZE,
+        letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE, 
+    } )
     let wordCoords = useRef( [] )
     let boardDOM = useRef( null )
 
@@ -119,7 +121,7 @@ function Board( props ) {
 
         // Insert words
         for ( let i = 0; i < props.words.length; i++ )
-            insertWord( props.words[i] )
+            insertWord( props.words[ i ] )
 
         setBoard( board )
 
@@ -133,7 +135,7 @@ function Board( props ) {
      *
      */
     let generateRandomCoords = ( word ) => {
-        
+
         let a = random( BOARD_SIZE )
         let b = random( BOARD_SIZE - word.length + 1 )
         let start = new Point( 0, 0 )
@@ -141,7 +143,7 @@ function Board( props ) {
 
         // Randomly determine if word is horizontal, vertical, or diagonal
         let wordDirection = random( Object.keys( WORD_DIRECTION ).length )
-    
+
         // Generate coordinates based on direction
         switch ( wordDirection ) {
 
@@ -151,7 +153,7 @@ function Board( props ) {
                 break
             case WORD_DIRECTION.VERTICAL:
                 start = new Point( a, b )
-                end = new Point( a, b + word.length ) 
+                end = new Point( a, b + word.length )
                 break
             case WORD_DIRECTION.DIAGONAL_UP:
             case WORD_DIRECTION.DIAGONAL_DOWN:
@@ -172,7 +174,7 @@ function Board( props ) {
                     end = new Point( start.x + word.length - 1, start.y - ( word.length - 1 ) )
                     wordDirection = WORD_DIRECTION.DIAGONAL_UP
                 }
-                
+
         }
 
         return [
@@ -180,7 +182,7 @@ function Board( props ) {
             end,
             wordDirection,
         ]
-    
+
     }
 
     // Insert given word
@@ -197,14 +199,14 @@ function Board( props ) {
 
             // Check for intersections with current wotrds
             for ( let j = 0; j < wordCoords.current.length; j++ ) {
-                let coords2 = wordCoords.current[j]
+                let coords2 = wordCoords.current[ j ]
 
                 // Retry if intersection found
-                if ( doIntersect( coords1[0], coords1[1], coords2[0], coords2[1] ) ) {
+                if ( doIntersect( coords1[ 0 ], coords1[ 1 ], coords2[ 0 ], coords2[ 1 ] ) ) {
                     intersect = true
                     break
                 }
-                
+
             }
 
             // Insert word if space is free
@@ -217,25 +219,25 @@ function Board( props ) {
                     reverse = word.length - 1
 
                 // TODO Maybe make a switch statement
-                if ( coords1[0].y === coords1[1].y )
+                if ( coords1[ 0 ].y === coords1[ 1 ].y )
                     // Insert word across
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].x + i ][ coords1[0].y ] = word[Math.abs( i - reverse )]
-                else if ( coords1[0].x === coords1[1].x )
+                        board[ coords1[ 0 ].x + i ][ coords1[ 0 ].y ] = word[ Math.abs( i - reverse ) ]
+                else if ( coords1[ 0 ].x === coords1[ 1 ].x )
                     // Insert word down
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].x ][ coords1[0].y + i ] = word[Math.abs( i - reverse )]
-                else if ( coords1[0].y < coords1[1].y )
+                        board[ coords1[ 0 ].x ][ coords1[ 0 ].y + i ] = word[ Math.abs( i - reverse ) ]
+                else if ( coords1[ 0 ].y < coords1[ 1 ].y )
                     // Diagonally down
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].x + i ][ coords1[0].y + i ] = word[Math.abs( i - reverse )]
+                        board[ coords1[ 0 ].x + i ][ coords1[ 0 ].y + i ] = word[ Math.abs( i - reverse ) ]
                 else {
                     // Diagonally up
                     for ( let i = 0; i < word.length; i++ )
-                        board[ coords1[0].x + i ][ coords1[0].y - i ] = word[Math.abs( i - reverse )]
+                        board[ coords1[ 0 ].x + i ][ coords1[ 0 ].y - i ] = word[ Math.abs( i - reverse ) ]
                 }
 
-                console.log( `${word} ${coords1[2]}` ) // TODO Remove when done
+                console.log( `${word} ${coords1[ 2 ]}` ) // TODO Remove when done
 
                 break
 
@@ -254,39 +256,39 @@ function Board( props ) {
     // Check for an answer
     useEffect( () => {
         let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
-        let newLines = [...lines]
-        
+        let newLines = [ ...lines ]
+
         // Check to see if an answer matches
         if ( answerIndex !== -1 ) {
-            
-            let coords = wordCoords.current[answerIndex]
-            let start = coords[0]
-            let end = coords[1]
-            let wordDirection = coords[2]
+
+            let coords = wordCoords.current[ answerIndex ]
+            let start = coords[ 0 ]
+            let end = coords[ 1 ]
+            let wordDirection = coords[ 2 ]
             let diagonalAdjustment = ( BOARD_SIZE - end.y ) * 2
 
-            let x1 = LETTER_WIDTH * start.x
-            let y1 = LETTER_HEIGHT * start.y
-            let x2 = LETTER_WIDTH * end.x
-            let y2 = LETTER_HEIGHT * end.y
+            let x1 = styleOffset.letterWidth * start.x
+            let y1 = styleOffset.letterHeight * start.y
+            let x2 = styleOffset.letterWidth * end.x
+            let y2 = styleOffset.letterHeight * end.y
 
             // TODO Improve precision of line placement and ensure portability
             switch ( wordDirection ) {
                 case WORD_DIRECTION.HORIZONTAL:
-                    y1 += LETTER_WIDTH/2
-                    y2 += LETTER_WIDTH/2
+                    y1 += styleOffset.letterWidth / 2
+                    y2 += styleOffset.letterWidth / 2
                     break
                 case WORD_DIRECTION.VERTICAL:
-                    x1 += LETTER_WIDTH/2
-                    x2 += LETTER_WIDTH/2
+                    x1 += styleOffset.letterWidth / 2
+                    x2 += styleOffset.letterWidth / 2
                     break
                 case WORD_DIRECTION.DIAGONAL_UP:
-                    x2 += LETTER_WIDTH
-                    y1 += LETTER_HEIGHT/2 + diagonalAdjustment
+                    x2 += styleOffset.letterWidth
+                    y1 += styleOffset.letterHeight / 2 + diagonalAdjustment
                     break
                 case WORD_DIRECTION.DIAGONAL_DOWN:
-                    x2 += LETTER_WIDTH
-                    y2 += LETTER_HEIGHT/2 - diagonalAdjustment
+                    x2 += styleOffset.letterWidth
+                    y2 += styleOffset.letterHeight / 2 - diagonalAdjustment
                     break
             }
 
@@ -299,30 +301,49 @@ function Board( props ) {
                 y2={y2}
                 style={styles.wordStroke}
             /> )
-            
+
             setLines( newLines )
-            
+
         }
     }, [ props.answer ] )
 
+    window.onresize = () => {
+        setStyleOffset( {
+            // Calculate board dimensions
+            width: window.screen.width * BOARD_WIDTH,
+            height: window.innerHeight * BOARD_HEIGHT,
+            // Calculate dimensions of letter on board
+            letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
+            letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE, 
+        } )
+    }
+
     let xCount = 0
 
-    return ( <svg style={styles.board} ref={boardDOM}>
-        {/* Background */}
-        <rect style={styles.boardRect} />
-        {/* Board content */}
-        <text style={styles.boardText} >{
-            board.map( ( i ) => { 
-                return <tspan
-                    x={styles.board.width/BOARD_SIZE * ++xCount - styles.board.width*0.035}
-                    y={0}
-                    textLength={styles.board.width*0.9}
-                >
-                {i}
-            </tspan> } )
-}</text>
-        {lines}
-    </svg> )
+    return (
+        <div>
+            <svg style={styles.board} ref={boardDOM} width={styleOffset.width} height={styleOffset.height}>
+                {/* Background */}
+                <rect style={styles.boardRect} />
+                {/* Board content */}
+                <text
+                    style={styles.boardText}
+                    fontSize={`${styleOffset.width / window.innerWidth * FS_FACTOR}vw`}
+                >{
+                    board.map( ( i ) => {
+                        return <tspan
+                            x={styleOffset.width / BOARD_SIZE * ++xCount - styleOffset.width * 0.035}
+                            y={0}
+                            textLength={styleOffset.height}
+                        >
+                            {i}
+                        </tspan>
+                    } )
+                }</text>
+                {lines}
+            </svg>
+        </div>
+    )
 
 }
 

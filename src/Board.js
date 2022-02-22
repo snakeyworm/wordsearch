@@ -3,15 +3,17 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 import React, { useState, useRef, useEffect } from "react";
+import { render } from "react-dom";
 import { doIntersect, Point } from "./mutils";
 
 // Constants
 
 // TODO Maybe make board bigger
-var BOARD_SIZE = 12;
+var BOARD_SIZE = 11;
 var BOARD_AREA = BOARD_SIZE * BOARD_SIZE;
-var FONT_SIZE = window.innerWidth * 0.047; // Size for board font
-var COLUMN_SIZE = FONT_SIZE * 0.7; // Size of each column
+var BOARD_WIDTH = 0.5;
+var BOARD_HEIGHT = 0.9;
+var FS_FACTOR = 5; // Used in calculation of responsive font size
 
 var INVALID_WORDS_MSG = "Invalid words provided:";
 
@@ -28,8 +30,6 @@ var WORD_DIRECTION = {
 };var styles = {
     board: {
         position: "fixed",
-        width: window.innerWidth * 0.431,
-        height: COLUMN_SIZE * BOARD_SIZE,
         left: "50%",
         top: "50%",
         transform: "translate( -50%, -50% )"
@@ -45,9 +45,6 @@ var WORD_DIRECTION = {
         textDecorationColor: "red"
     },
     boardText: {
-        x: 0,
-        y: 0,
-        fontSize: FONT_SIZE,
         writingMode: "tb",
         textOrientation: "upright"
     },
@@ -58,11 +55,8 @@ var WORD_DIRECTION = {
 
     // Constants(Some constants rely on style declaration)
 
-};var LETTER_WIDTH = styles.board.width / BOARD_SIZE;
-var LETTER_HEIGHT = styles.board.height / BOARD_SIZE;
-
-// Generate a number between 0 and n-1
-var random = function random(n) {
+    // Generate a number between 0 and n-1
+};var random = function random(n) {
     return Math.floor(Math.random() * n);
 };
 
@@ -87,11 +81,17 @@ function Board(props) {
         lines = _useState4[0],
         setLines = _useState4[1];
 
-    var _useState5 = useState(true),
+    var _useState5 = useState({
+        // Calculate board dimensions
+        width: window.screen.width * BOARD_WIDTH,
+        height: window.innerHeight * BOARD_HEIGHT,
+        // Calculate dimensions of letter on board
+        letterWidth: window.screen.wdith * BOARD_WIDTH / BOARD_SIZE,
+        letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE
+    }),
         _useState6 = _slicedToArray(_useState5, 2),
-        renderSwitch = _useState6[0],
-        reRender = _useState6[1]; // TODO Remove if not needed
-
+        styleOffset = _useState6[0],
+        setStyleOffset = _useState6[1];
 
     var wordCoords = useRef([]);
     var boardDOM = useRef(null);
@@ -262,28 +262,28 @@ function Board(props) {
             var wordDirection = coords[2];
             var diagonalAdjustment = (BOARD_SIZE - end.y) * 2;
 
-            var x1 = LETTER_WIDTH * start.x;
-            var y1 = LETTER_HEIGHT * start.y;
-            var x2 = LETTER_WIDTH * end.x;
-            var y2 = LETTER_HEIGHT * end.y;
+            var x1 = styleOffset.letterWidth * start.x;
+            var y1 = styleOffset.letterHeight * start.y;
+            var x2 = styleOffset.letterWidth * end.x;
+            var y2 = styleOffset.letterHeight * end.y;
 
             // TODO Improve precision of line placement and ensure portability
             switch (wordDirection) {
                 case WORD_DIRECTION.HORIZONTAL:
-                    y1 += LETTER_WIDTH / 2;
-                    y2 += LETTER_WIDTH / 2;
+                    y1 += styleOffset.letterWidth / 2;
+                    y2 += styleOffset.letterWidth / 2;
                     break;
                 case WORD_DIRECTION.VERTICAL:
-                    x1 += LETTER_WIDTH / 2;
-                    x2 += LETTER_WIDTH / 2;
+                    x1 += styleOffset.letterWidth / 2;
+                    x2 += styleOffset.letterWidth / 2;
                     break;
                 case WORD_DIRECTION.DIAGONAL_UP:
-                    x2 += LETTER_WIDTH;
-                    y1 += LETTER_HEIGHT / 2 + diagonalAdjustment;
+                    x2 += styleOffset.letterWidth;
+                    y1 += styleOffset.letterHeight / 2 + diagonalAdjustment;
                     break;
                 case WORD_DIRECTION.DIAGONAL_DOWN:
-                    x2 += LETTER_WIDTH;
-                    y2 += LETTER_HEIGHT / 2 - diagonalAdjustment;
+                    x2 += styleOffset.letterWidth;
+                    y2 += styleOffset.letterHeight / 2 - diagonalAdjustment;
                     break;
             }
 
@@ -301,28 +301,46 @@ function Board(props) {
         }
     }, [props.answer]);
 
+    window.onresize = function () {
+        setStyleOffset({
+            // Calculate board dimensions
+            width: window.screen.width * BOARD_WIDTH,
+            height: window.innerHeight * BOARD_HEIGHT,
+            // Calculate dimensions of letter on board
+            letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
+            letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE
+        });
+    };
+
     var xCount = 0;
 
     return React.createElement(
-        "svg",
-        { style: styles.board, ref: boardDOM },
-        React.createElement("rect", { style: styles.boardRect }),
+        "div",
+        null,
         React.createElement(
-            "text",
-            { style: styles.boardText },
-            board.map(function (i) {
-                return React.createElement(
-                    "tspan",
-                    {
-                        x: styles.board.width / BOARD_SIZE * ++xCount - styles.board.width * 0.035,
-                        y: 0,
-                        textLength: styles.board.width * 0.9
-                    },
-                    i
-                );
-            })
-        ),
-        lines
+            "svg",
+            { style: styles.board, ref: boardDOM, width: styleOffset.width, height: styleOffset.height },
+            React.createElement("rect", { style: styles.boardRect }),
+            React.createElement(
+                "text",
+                {
+                    style: styles.boardText,
+                    fontSize: styleOffset.width / window.innerWidth * FS_FACTOR + "vw"
+                },
+                board.map(function (i) {
+                    return React.createElement(
+                        "tspan",
+                        {
+                            x: styleOffset.width / BOARD_SIZE * ++xCount - styleOffset.width * 0.035,
+                            y: 0,
+                            textLength: styleOffset.height
+                        },
+                        i
+                    );
+                })
+            ),
+            lines
+        )
     );
 }
 
