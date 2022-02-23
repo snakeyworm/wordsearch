@@ -8,6 +8,8 @@ import Board from "./Board"
 const styles = {
     inputField: {
         position: "absolute",
+        width: "33%",
+        height: "2%",
         left: "50%",
         transform: "translateX( -50% )",
     }

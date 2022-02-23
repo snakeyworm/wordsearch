@@ -1,11 +1,10 @@
 
 import React, { useState, useRef, useEffect, } from "react"
-import { render } from "react-dom";
 import { doIntersect, Point } from "./mutils";
 
 // Constants
 
-// TODO Maybe make board bigger
+// TODO Allow user to input a board size for difficulty
 const BOARD_SIZE = 11
 const BOARD_AREA = BOARD_SIZE * BOARD_SIZE
 const BOARD_WIDTH = 0.5
@@ -75,8 +74,8 @@ function Board( props ) {
         width: window.screen.width * BOARD_WIDTH,
         height: window.innerHeight * BOARD_HEIGHT,
         // Calculate dimensions of letter on board
-        letterWidth: window.screen.wdith * BOARD_WIDTH / BOARD_SIZE,
-        letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE, 
+        letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
+        letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE,
     } )
     let wordCoords = useRef( [] )
     let boardDOM = useRef( null )
@@ -254,6 +253,7 @@ function Board( props ) {
     useEffect( populateBoard, [ props.words ] )
 
     // Check for an answer
+    // TODO Fix line placement
     useEffect( () => {
         let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
         let newLines = [ ...lines ]
@@ -272,7 +272,6 @@ function Board( props ) {
             let x2 = styleOffset.letterWidth * end.x
             let y2 = styleOffset.letterHeight * end.y
 
-            // TODO Improve precision of line placement and ensure portability
             switch ( wordDirection ) {
                 case WORD_DIRECTION.HORIZONTAL:
                     y1 += styleOffset.letterWidth / 2
@@ -308,17 +307,20 @@ function Board( props ) {
     }, [ props.answer ] )
 
     window.onresize = () => {
+        console.log( "Re render" )
         setStyleOffset( {
             // Calculate board dimensions
             width: window.screen.width * BOARD_WIDTH,
             height: window.innerHeight * BOARD_HEIGHT,
             // Calculate dimensions of letter on board
             letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
-            letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE, 
+            letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE,
         } )
     }
 
     let xCount = 0
+
+    console.log( `${styleOffset.width / window.innerWidth * FS_FACTOR}vm` )
 
     return (
         <div>
@@ -330,16 +332,16 @@ function Board( props ) {
                     style={styles.boardText}
                     fontSize={`${styleOffset.width / window.innerWidth * FS_FACTOR}vw`}
                 >{
-                    board.map( ( i ) => {
-                        return <tspan
-                            x={styleOffset.width / BOARD_SIZE * ++xCount - styleOffset.width * 0.035}
-                            y={0}
-                            textLength={styleOffset.height}
-                        >
-                            {i}
-                        </tspan>
-                    } )
-                }</text>
+                        board.map( ( i ) => {
+                            return <tspan
+                                x={styleOffset.width / BOARD_SIZE * ++xCount - styleOffset.width * 0.035}
+                                y={0}
+                                textLength={styleOffset.height}
+                            >
+                                {i}
+                            </tspan>
+                        } )
+                    }</text>
                 {lines}
             </svg>
         </div>

@@ -3,12 +3,11 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 import React, { useState, useRef, useEffect } from "react";
-import { render } from "react-dom";
 import { doIntersect, Point } from "./mutils";
 
 // Constants
 
-// TODO Maybe make board bigger
+// TODO Allow user to input a board size for difficulty
 var BOARD_SIZE = 11;
 var BOARD_AREA = BOARD_SIZE * BOARD_SIZE;
 var BOARD_WIDTH = 0.5;
@@ -86,7 +85,7 @@ function Board(props) {
         width: window.screen.width * BOARD_WIDTH,
         height: window.innerHeight * BOARD_HEIGHT,
         // Calculate dimensions of letter on board
-        letterWidth: window.screen.wdith * BOARD_WIDTH / BOARD_SIZE,
+        letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
         letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE
     }),
         _useState6 = _slicedToArray(_useState5, 2),
@@ -249,6 +248,7 @@ function Board(props) {
     useEffect(populateBoard, [props.words]);
 
     // Check for an answer
+    // TODO Fix line placement
     useEffect(function () {
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
         var newLines = [].concat(_toConsumableArray(lines));
@@ -267,7 +267,6 @@ function Board(props) {
             var x2 = styleOffset.letterWidth * end.x;
             var y2 = styleOffset.letterHeight * end.y;
 
-            // TODO Improve precision of line placement and ensure portability
             switch (wordDirection) {
                 case WORD_DIRECTION.HORIZONTAL:
                     y1 += styleOffset.letterWidth / 2;
@@ -302,6 +301,7 @@ function Board(props) {
     }, [props.answer]);
 
     window.onresize = function () {
+        console.log("Re render");
         setStyleOffset({
             // Calculate board dimensions
             width: window.screen.width * BOARD_WIDTH,
@@ -313,6 +313,8 @@ function Board(props) {
     };
 
     var xCount = 0;
+
+    console.log(styleOffset.width / window.innerWidth * FS_FACTOR + "vm");
 
     return React.createElement(
         "div",
