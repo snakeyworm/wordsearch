@@ -308,12 +308,13 @@ function Board( props ) {
 
     // TODO Not sizing responsivly(And it just was)
     window.onresize = () => {
+        console.log( "Re render" )
         setStyleOffset( {
             // Calculate board dimensions
             width: window.screen.width * BOARD_WIDTH,
             height: window.innerHeight * BOARD_HEIGHT,
             // Calculate dimensions of letter on board
-            letterWidth: window.screen.width re* BOARD_WIDTH / BOARD_SIZE,
+            letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
             letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE,
         } )
     }

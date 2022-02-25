@@ -302,6 +302,7 @@ function Board(props) {
 
     // TODO Not sizing responsivly(And it just was)
     window.onresize = function () {
+        console.log("Re render");
         setStyleOffset({
             // Calculate board dimensions
             width: window.screen.width * BOARD_WIDTH,
