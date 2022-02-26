@@ -4,39 +4,90 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
+import { NoEmitOnErrorsPlugin } from "webpack";
 import Board from "./Board";
 
 var styles = {
-    inputField: {
-        position: "absolute",
-        width: "33%",
-        height: "2%",
+    form: {
+        position: "relative",
         left: "50%",
-        transform: "translateX( -50% )"
+        top: 4
+    },
+    inputField: {
+        padding: "0 30px",
+        width: window.screen.width * 0.1,
+        height: "3%",
+        // transform: "translateX( -50% )",
+        fontSize: "120%",
+        borderRadius: "5px 5px"
+    },
+    submitButton: {
+        borderRadius: "0 10px 0 10px",
+        background: "#0000ee",
+        padding: "none"
     }
 
     // TODO Add aesthetics
-    // App container
+    // App crontainer
 };function App() {
     var _useState = useState(""),
         _useState2 = _slicedToArray(_useState, 2),
-        input = _useState2[0],
-        setInput = _useState2[1];
+        inputBuf = _useState2[0],
+        setInputBuf = _useState2[1];
 
-    var _useState3 = useState(["ice", "bible", "god", "computer", "hockey", "chocolate"]),
+    var _useState3 = useState(""),
         _useState4 = _slicedToArray(_useState3, 2),
-        words = _useState4[0],
-        setWords = _useState4[1];
+        input = _useState4[0],
+        setInput = _useState4[1];
+
+    var _useState5 = useState(["ice", "bible", "god", "computer", "hockey", "chocolate"]),
+        _useState6 = _slicedToArray(_useState5, 2),
+        words = _useState6[0],
+        setWords = _useState6[1];
+
+    // Handle user input
+
 
     var handleChange = function handleChange(event) {
-        setInput(event.target.value);
+        console.log(event);
+        setInputBuf(event.target.value);
+    };
+
+    // Handle user return
+    var handleKeyPress = function handleKeyPress(event) {
+
+        if (event.code === "Enter") {
+            submit();
+        }
+    };
+
+    // Submit user input
+    var submit = function submit() {
+        setInput(inputBuf);
+        setInputBuf("");
     };
 
     return React.createElement(
         "div",
         null,
-        React.createElement("input", { style: styles.inputField, type: "text", value: input, onChange: handleChange }),
-        React.createElement(Board, { words: words, answer: input })
+        React.createElement(
+            "div",
+            {
+                style: styles.form
+            },
+            React.createElement("input", {
+                style: styles.inputField,
+                type: "text",
+                value: inputBuf,
+                onChange: handleChange,
+                onKeyPress: handleKeyPress }),
+            React.createElement("input", {
+                style: styles.submitButton,
+                type: "button",
+                value: " hello"
+
+            })
+        )
     );
 }
 
