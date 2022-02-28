@@ -9,22 +9,30 @@ import Board from "./Board";
 
 var styles = {
     form: {
+        display: "flex",
+        flexDirection: "row",
         position: "relative",
+        width: window.screen.width * 0.15,
+        height: window.innerHeight * 0.03,
         left: "50%",
+        transform: "translateX( -50% )",
         top: 4
     },
     inputField: {
+        display: "inline-block",
         padding: "0 30px",
-        width: window.screen.width * 0.1,
-        height: "3%",
-        // transform: "translateX( -50% )",
-        fontSize: "120%",
-        borderRadius: "5px 5px"
+        border: "1px solid black",
+        borderRight: "none",
+        borderRadius: "5px 0 0 5px",
+        fontSze: "120%"
     },
     submitButton: {
-        borderRadius: "0 10px 0 10px",
+        display: "inline-block",
+        border: "1px solid black",
+        borderLeft: "none",
+        borderRadius: "0 5px 5px 0",
         background: "#0000ee",
-        padding: "none"
+        cursor: "pointer"
     }
 
     // TODO Add aesthetics
@@ -85,7 +93,6 @@ var styles = {
                 style: styles.submitButton,
                 type: "button",
                 value: " hello"
-
             })
         )
     );
