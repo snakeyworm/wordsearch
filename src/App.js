@@ -25,6 +25,17 @@ var styles = {
         // borderRight: "none",
         borderRadius: "5px",
         fontSize: "180%"
+<<<<<<< HEAD
+=======
+    },
+    submitButton: {
+        display: "inline-block",
+        border: "1px solid black",
+        borderLeft: "none",
+        borderRadius: "0 5px 5px 0",
+        background: "#87cefa",
+        cursor: "pointer"
+>>>>>>> 29106391bfc96375bc4e0e4d15cb8e4df0861dd3
     }
 
     // TODO Add aesthetics
