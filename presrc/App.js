@@ -4,34 +4,26 @@
 import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { NoEmitOnErrorsPlugin } from "webpack"
-import Board from "./Board"
+import Board, { BOARD_WIDTH } from "./Board"
 
 const styles = {
     form: {
         display: "flex",
         flexDirection: "row",
         position: "relative",
-        width: window.screen.width * 0.15,
-        height: window.innerHeight * 0.03,
+        width: window.screen.width * BOARD_WIDTH * 0.9,
+        height: window.innerHeight * 0.0425,
         left: "50%",
-        transform: "translateX( -50% )",
-        top: 4,
+        transform: "translate( -50%, -10% )",
     },
     inputField: {
         display: "inline-block",
-        padding: "0 30px",
+        width: "100%",
+        padding: "0 5px",
         border: "1px solid black",
-        borderRight: "none",
-        borderRadius: "5px 0 0 5px",
-        fontSze: "120%",
-    },
-    submitButton: {
-        display: "inline-block",
-        border: "1px solid black",
-        borderLeft: "none",
-        borderRadius: "0 5px 5px 0",
-        background: "#0000ee",
-        cursor: "pointer",
+        // borderRight: "none",
+        borderRadius: "5px",
+        fontSize: "180%",
     },
 }
 
@@ -53,16 +45,11 @@ function App() {
     let handleKeyPress = ( event ) => {
 
         if ( event.code === "Enter" ) {
-            submit()
+            // Submit user input
+            setInput( inputBuf )
+            setInputBuf( "" )
         }
         
-    }
-
-    // Submit user input
-    let submit = () => {
-        setInput( inputBuf )
-        setInputBuf( "" )
-
     }
 
     return ( <div>
@@ -76,14 +63,8 @@ function App() {
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}>
             </input>
-            <input
-                style={styles.submitButton}
-                type="button"
-                value=" hello"
-            >
-            </input>
         </div>
-        {/* <Board words={words} answer={input} /> */}
+        <Board words={words} answer={input} />
     </div> )
 
 }
