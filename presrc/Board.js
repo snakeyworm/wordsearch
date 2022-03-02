@@ -351,3 +351,4 @@ function Board( props ) {
 }
 
 export default Board;
+export { BOARD_WIDTH };
