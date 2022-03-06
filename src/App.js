@@ -22,20 +22,9 @@ var styles = {
         width: "100%",
         padding: "0 5px",
         border: "1px solid black",
-        // borderRight: "none",
+        // borderRight: "none", TODO Remove if not needed
         borderRadius: "5px",
         fontSize: "180%"
-<<<<<<< HEAD
-=======
-    },
-    submitButton: {
-        display: "inline-block",
-        border: "1px solid black",
-        borderLeft: "none",
-        borderRadius: "0 5px 5px 0",
-        background: "#87cefa",
-        cursor: "pointer"
->>>>>>> 29106391bfc96375bc4e0e4d15cb8e4df0861dd3
     }
 
     // TODO Add aesthetics
@@ -56,9 +45,9 @@ var styles = {
         words = _useState6[0],
         setWords = _useState6[1];
 
+    var container = useRef(null);
+
     // Handle user input
-
-
     var handleChange = function handleChange(event) {
         console.log(event);
         setInputBuf(event.target.value);
@@ -74,9 +63,17 @@ var styles = {
         }
     };
 
+    setInterval(function () {
+        // TODO Modify container styles for animated gradient
+    }, 200);
+
     return React.createElement(
         "div",
-        null,
+        { ref: container, style: {
+                height: window.innerHeight,
+                padding: "10px",
+                backgroundImage: "linear-gradient( to right, #121212, #F9E076 )"
+            } },
         React.createElement(
             "div",
             {
