@@ -7,15 +7,16 @@ import { NoEmitOnErrorsPlugin } from "webpack"
 import Board, { BOARD_WIDTH } from "./Board"
 
 const GRADIENT_COLORS = [
-     "#0b536f",
-     "#ef9d1f",
-     "#ef1fe0",
-     "#1fef55",
-     "#fb3232",
-     "#32e3fb",
-     "#f9fb32", 
-     "#c832fb",
+    "#0b536f",
+    "#ef9d1f",
+    "#ef1fe0",
+    "#1fef55",
+    "#fb3232",
+    "#32e3fb",
+    "#f9fb32", 
+    "#c832fb",
 ]; 
+const GRADIENT_RATE = 1
 
 const styles = {
     form: {
@@ -68,28 +69,31 @@ function App() {
     useEffect( () => { 
 
         console.log( "re render" )
-        let gradientPercentage = 0
-        let index = 0 // Index of next color
-        let leftOrRight = true
-        let color1
-        let color2
+        let gradientPercentage = GRADIENT_RATE
+        let index = 1 // Index of next color
+        let leftOrRight = true // Direction of gradient
+        let color1 = GRADIENT_COLORS[ index - 1 ]
+        let color2 = GRADIENT_COLORS[ index ]
         setInterval( ()  => {
-            if ( gradientPercentage >= 75 || gradientPercentage <= 0  ) {
-                index = ( index + 1 < GRADIENT_COLORS.length ) ? index + 1 : 0
-                gradientPercentage = 0
-                color1 = color2
-                color2 = GRADIENT_COLORS[ index ]
+            gradientPercentage += ( leftOrRight ) ? GRADIENT_RATE : -GRADIENT_RATE
+            if ( gradientPercentage >= 100 || gradientPercentage <= 0 ) {
+                console.log( "Color change" )
+                index = index + 1 < GRADIENT_COLORS.legnth ? index + 1 : index
+                console.log( index )
+                console.log( GRADIENT_COLORS.length )
+                color1 = GRADIENT_COLORS.slice( index - 1, index )[0]
+                color2 = GRADIENT_COLORS.slice( index, index + 1 )[0]
+                console.log( color1 )
+                console.log( color2 )
                 leftOrRight = !leftOrRight
             }
-            gradientPercentage += ( leftOrRight ) ? 0.5 : -0.5
-            console.log( gradientPercentage )
             container.current.style.backgroundImage = `
-                linear-gradient( to right, 
-                    ${color1}
-                    ${color2}
-                    ${75}%,
-
+                linear-gradient( to ${leftOrRight ? "right" : "left"},
+                    ${color1} 0%,
+                    ${color1} ${gradientPercentage}%,
+                    ${color2} 0%
                 )`
+            console.log( container.current.style.backgroundImage )
         }, 50 )
 
     }, [] )
