@@ -2,10 +2,12 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 // wordsearch v0.0.1
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { NoEmitOnErrorsPlugin } from "webpack";
 import Board, { BOARD_WIDTH } from "./Board";
+
+var GRADIENT_COLORS = ["#0b536f", "#ef9d1f", "#ef1fe0", "#1fef55", "#fb3232", "#32e3fb", "#f9fb32", "#c832fb"];
 
 var styles = {
     form: {
@@ -40,7 +42,7 @@ var styles = {
         input = _useState4[0],
         setInput = _useState4[1];
 
-    var _useState5 = useState(["ice", "bible", "god", "computer", "hockey", "chocolate"]),
+    var _useState5 = useState(["ice", "bible", "god", "computer", "hockey", "chocolate", "fart"]),
         _useState6 = _slicedToArray(_useState5, 2),
         words = _useState6[0],
         setWords = _useState6[1];
@@ -63,16 +65,34 @@ var styles = {
         }
     };
 
-    setInterval(function () {
-        // TODO Modify container styles for animated gradient
-    }, 200);
+    // Linear gradient
+    useEffect(function () {
+
+        console.log("re render");
+        var gradientPercentage = 0;
+        var index = 0; // Index of next color
+        var leftOrRight = true;
+        var color1 = void 0;
+        var color2 = void 0;
+        setInterval(function () {
+            if (gradientPercentage >= 75 || gradientPercentage <= 0) {
+                index = index + 1 < GRADIENT_COLORS.length ? index + 1 : 0;
+                gradientPercentage = 0;
+                color1 = color2;
+                color2 = GRADIENT_COLORS[index];
+                leftOrRight = !leftOrRight;
+            }
+            gradientPercentage += leftOrRight ? 0.5 : -0.5;
+            console.log(gradientPercentage);
+            container.current.style.backgroundImage = "\n                linear-gradient( to right, \n                    " + color1 + "\n                    " + color2 + "\n                    " + 75 + "%,\n\n                )";
+        }, 50);
+    }, []);
 
     return React.createElement(
         "div",
         { ref: container, style: {
                 height: window.innerHeight,
-                padding: "10px",
-                backgroundImage: "linear-gradient( to right, #121212, #F9E076 )"
+                padding: "10px"
             } },
         React.createElement(
             "div",

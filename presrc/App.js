@@ -1,10 +1,21 @@
 
 // wordsearch v0.0.1
 
-import React, { useState } from "react"
+import React, { useState,  useRef, useEffect, } from "react"
 import ReactDOM from "react-dom"
 import { NoEmitOnErrorsPlugin } from "webpack"
 import Board, { BOARD_WIDTH } from "./Board"
+
+const GRADIENT_COLORS = [
+     "#0b536f",
+     "#ef9d1f",
+     "#ef1fe0",
+     "#1fef55",
+     "#fb3232",
+     "#32e3fb",
+     "#f9fb32", 
+     "#c832fb",
+]; 
 
 const styles = {
     form: {
@@ -33,7 +44,7 @@ function App() {
 
     let [ inputBuf, setInputBuf ] = useState( "" )
     let [ input, setInput ] = useState( "" )
-    let [ words, setWords ] = useState( [ "ice", "bible", "god", "computer", "hockey", "chocolate" ] )
+    let [ words, setWords ] = useState( [ "ice", "bible", "god", "computer", "hockey", "chocolate", "fart", ] )
     let container = useRef( null )
 
     // Handle user input
@@ -50,17 +61,42 @@ function App() {
             setInput( inputBuf )
             setInputBuf( "" )
         }
-        
+     
     }
 
-    setInterval( () => {
-        // TODO Modify container styles for animated gradient
-    }, 200 )
+    // Linear gradient
+    useEffect( () => { 
+
+        console.log( "re render" )
+        let gradientPercentage = 0
+        let index = 0 // Index of next color
+        let leftOrRight = true
+        let color1
+        let color2
+        setInterval( ()  => {
+            if ( gradientPercentage >= 75 || gradientPercentage <= 0  ) {
+                index = ( index + 1 < GRADIENT_COLORS.length ) ? index + 1 : 0
+                gradientPercentage = 0
+                color1 = color2
+                color2 = GRADIENT_COLORS[ index ]
+                leftOrRight = !leftOrRight
+            }
+            gradientPercentage += ( leftOrRight ) ? 0.5 : -0.5
+            console.log( gradientPercentage )
+            container.current.style.backgroundImage = `
+                linear-gradient( to right, 
+                    ${color1}
+                    ${color2}
+                    ${75}%,
+
+                )`
+        }, 50 )
+
+    }, [] )
 
     return ( <div ref={container} style={{
         height: window.innerHeight,
         padding: "10px",
-        backgroundImage: `linear-gradient( to right, #121212, #F9E076 )`,
     }}>
         <div
             style={styles.form}
