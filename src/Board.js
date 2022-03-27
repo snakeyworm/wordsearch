@@ -95,12 +95,16 @@ function Board(props) {
     var wordCoords = useRef([]);
     var boardDOM = useRef(null);
 
+    console.log;
+
     var populateBoard = function populateBoard() {
 
         // Prop checking
 
         var requiredArea = 0;
         wordCoords.current = []; // Dump old word coordinate
+
+        console.log(props.words);
 
         // Ensure words are correct length
         props.words.forEach(function (i) {
@@ -185,6 +189,7 @@ function Board(props) {
     // Insert given word
     var insertWord = function insertWord(word) {
 
+        console.log(word); // TODO Remove when done
         word = word.toUpperCase();
 
         // Find coordinates where word would fit
@@ -246,6 +251,7 @@ function Board(props) {
     // Check for an answer
     // TODO Fix line placement
     useEffect(function () {
+        console.log("Got an answer: " + props.answer);
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
         var newLines = [].concat(_toConsumableArray(lines));
 
@@ -340,4 +346,4 @@ function Board(props) {
 }
 
 export default Board;
-export { BOARD_WIDTH };
+export { BOARD_WIDTH, BOARD_SIZE };

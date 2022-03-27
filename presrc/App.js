@@ -4,7 +4,11 @@
 import React, { useState,  useRef, useEffect, } from "react"
 import ReactDOM from "react-dom"
 import { NoEmitOnErrorsPlugin } from "webpack"
-import Board, { BOARD_WIDTH } from "./Board"
+import Board, { BOARD_WIDTH, BOARD_SIZE} from "./Board"
+
+// Constants
+
+// For gradient
 
 const GRADIENT_COLORS = [
     "#0b536f",
@@ -17,6 +21,12 @@ const GRADIENT_COLORS = [
     "#c832fb",
 ]; 
 const GRADIENT_RATE = 1
+
+// For word generation
+
+const WORD_MIN_LENGTH = 3 // Minmum length of genrate word
+const WORD_COUNT = 4 // Number of words to generate
+const WORD_REQUEST = `https://api.wordnik.com/v4/words.json/randomWords?limit=${WORD_COUNT}&minLength=${WORD_MIN_LENGTH}&maxLength=${BOARD_SIZE}&includePartOfSpeech=noun,verb,adjective,adverb&api_key=73v51oy38g5q0jwfh5cmgxsmoi8jpu0ma88xyctfhv1iuf559`
 
 const styles = {
     form: {
@@ -39,13 +49,27 @@ const styles = {
     },
 }
 
+// TODO Make it return random list of words using wordnik
+async function getRandomWords() {
+    
+    // TODO minLength and maxLength are character lengths of word(FIX)
+    return await fetch ( WORD_REQUEST ).then( ( response ) => {
+        return response.json()
+    } ).then( ( data ) => {
+        let words = []
+        data.forEach( ( element ) => words.push( element.word ) )
+        return words
+    })
+
+}
+
 // TODO Add aesthetics
 // App crontainer
 function App() {
 
     let [ inputBuf, setInputBuf ] = useState( "" )
     let [ input, setInput ] = useState( "" )
-    let [ words, setWords ] = useState( [ "ice", "bible", "god", "computer", "hockey", "chocolate", "fart", ] )
+    let [ words, setWords ] = useState( [] ) 
     let container = useRef( null )
 
     // Handle user input
@@ -64,10 +88,14 @@ function App() {
      
     }
 
-    // Linear gradient
+    useEffect( async () => {
+        setWords( await getRandomWords() )
+    }, [] )
+
     useEffect( () => { 
 
-        console.log( "re render" )
+        // Linear gradient
+
         let gradientPercentage = GRADIENT_RATE
         let index = 1 // Index of next color
         let leftOrRight = true // Direction of gradient
@@ -77,12 +105,8 @@ function App() {
             gradientPercentage += ( leftOrRight ) ? GRADIENT_RATE : -GRADIENT_RATE
             if ( gradientPercentage >= 100 || gradientPercentage <= 0 ) {
                 index = index + 1 < GRADIENT_COLORS.legnth ? index + 1 : index
-                console.log( index )
-                console.log( GRADIENT_COLORS.length )
                 color1 = GRADIENT_COLORS.slice( index - 1, index )[0]
                 color2 = GRADIENT_COLORS.slice( index, index + 1 )[0]
-                console.log( color1 )
-                console.log( color2 )
                 leftOrRight = !leftOrRight
             }
             container.current.style.backgroundImage = `
@@ -91,7 +115,6 @@ function App() {
                     ${color1} ${gradientPercentage}%,
                     ${color2} 0%
                 )`
-            console.log( container.current.style.backgroundImage )
         }, 50 )
 
     }, [] )
