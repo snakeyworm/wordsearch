@@ -56,7 +56,9 @@ async function getRandomWords() {
     return await fetch ( WORD_REQUEST ).then( ( response ) => {
         return response.json()
     } ).then( ( data ) => {
-        return data
+        let words = []
+        data.forEach( ( element ) => words.push( element.word ) )
+        return words
     })
 
 }
@@ -72,7 +74,6 @@ function App() {
 
     // Handle user input
     let handleChange = ( event ) => {
-        console.log( event )
         setInputBuf( event.target.value )
     }
 
@@ -95,7 +96,6 @@ function App() {
 
         // Linear gradient
 
-        console.log( "re render" )
         let gradientPercentage = GRADIENT_RATE
         let index = 1 // Index of next color
         let leftOrRight = true // Direction of gradient
@@ -104,14 +104,9 @@ function App() {
         setInterval( ()  => {
             gradientPercentage += ( leftOrRight ) ? GRADIENT_RATE : -GRADIENT_RATE
             if ( gradientPercentage >= 100 || gradientPercentage <= 0 ) {
-                console.log( "Color change" )
                 index = index + 1 < GRADIENT_COLORS.legnth ? index + 1 : index
-                console.log( index )
-                console.log( GRADIENT_COLORS.length )
                 color1 = GRADIENT_COLORS.slice( index - 1, index )[0]
                 color2 = GRADIENT_COLORS.slice( index, index + 1 )[0]
-                console.log( color1 )
-                console.log( color2 )
                 leftOrRight = !leftOrRight
             }
             container.current.style.backgroundImage = `
@@ -120,7 +115,6 @@ function App() {
                     ${color1} ${gradientPercentage}%,
                     ${color2} 0%
                 )`
-            console.log( container.current.style.backgroundImage )
         }, 50 )
 
     }, [] )

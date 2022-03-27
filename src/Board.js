@@ -134,10 +134,8 @@ function Board(props) {
 
         // Insert words
         for (var _i2 = 0; _i2 < props.words.length; _i2++) {
-            insertWord(props.words[_i2].word);
-        }
-
-        setBoard(board);
+            insertWord(props.words[_i2]);
+        }setBoard(board);
 
         console.log(board); // TODO Remove when done
     };
@@ -193,6 +191,7 @@ function Board(props) {
     // Insert given word
     var insertWord = function insertWord(word) {
 
+        console.log(word); // TODO Remove when done
         word = word.toUpperCase();
 
         // Find coordinates where word would fit
@@ -241,8 +240,6 @@ function Board(props) {
                     }
                 }
 
-                console.log(word + " " + coords1[2]); // TODO Remove when done
-
                 break;
             }
         }
@@ -256,6 +253,7 @@ function Board(props) {
     // Check for an answer
     // TODO Fix line placement
     useEffect(function () {
+        console.log("Got an answer: " + props.answer);
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
         var newLines = [].concat(_toConsumableArray(lines));
 
@@ -291,8 +289,6 @@ function Board(props) {
                     y2 += styleOffset.letterHeight / 2 - diagonalAdjustment;
                     break;
             }
-
-            console.log(styles.wordStroke);
 
             newLines.push(React.createElement("line", {
                 x1: x1,

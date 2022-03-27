@@ -123,9 +123,8 @@ function Board( props ) {
         }
 
         // Insert words
-        for ( let i = 0; i < props.words.length; i++ ) {
-            insertWord( props.words[ i ].word )
-        }
+        for ( let i = 0; i < props.words.length; i++ )
+            insertWord( props.words[ i ] )
 
         setBoard( board )
 
@@ -192,6 +191,7 @@ function Board( props ) {
     // Insert given word
     let insertWord = ( word ) => {
 
+        console.log( word ) // TODO Remove when done
         word = word.toUpperCase()
 
         // Find coordinates where word would fit
@@ -241,8 +241,6 @@ function Board( props ) {
                         board[ coords1[ 0 ].x + i ][ coords1[ 0 ].y - i ] = word[ Math.abs( i - reverse ) ]
                 }
 
-                console.log( `${word} ${coords1[ 2 ]}` ) // TODO Remove when done
-
                 break
 
             }
@@ -260,6 +258,7 @@ function Board( props ) {
     // Check for an answer
     // TODO Fix line placement
     useEffect( () => {
+        console.log( "Got an answer: " + props.answer )
         let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
         let newLines = [ ...lines ]
 
@@ -295,8 +294,6 @@ function Board( props ) {
                     y2 += styleOffset.letterHeight / 2 - diagonalAdjustment
                     break
             }
-
-            console.log( styles.wordStroke )
 
             newLines.push( <line
                 x1={x1}

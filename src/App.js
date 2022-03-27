@@ -12,7 +12,11 @@ var getRandomWords = function () {
                         return fetch(WORD_REQUEST).then(function (response) {
                             return response.json();
                         }).then(function (data) {
-                            return data;
+                            var words = [];
+                            data.forEach(function (element) {
+                                return words.push(element.word);
+                            });
+                            return words;
                         });
 
                     case 2:
@@ -100,7 +104,6 @@ var styles = {
 
     // Handle user input
     var handleChange = function handleChange(event) {
-        console.log(event);
         setInputBuf(event.target.value);
     };
 
@@ -139,7 +142,6 @@ var styles = {
 
         // Linear gradient
 
-        console.log("re render");
         var gradientPercentage = GRADIENT_RATE;
         var index = 1; // Index of next color
         var leftOrRight = true; // Direction of gradient
@@ -148,18 +150,12 @@ var styles = {
         setInterval(function () {
             gradientPercentage += leftOrRight ? GRADIENT_RATE : -GRADIENT_RATE;
             if (gradientPercentage >= 100 || gradientPercentage <= 0) {
-                console.log("Color change");
                 index = index + 1 < GRADIENT_COLORS.legnth ? index + 1 : index;
-                console.log(index);
-                console.log(GRADIENT_COLORS.length);
                 color1 = GRADIENT_COLORS.slice(index - 1, index)[0];
                 color2 = GRADIENT_COLORS.slice(index, index + 1)[0];
-                console.log(color1);
-                console.log(color2);
                 leftOrRight = !leftOrRight;
             }
             container.current.style.backgroundImage = "\n                linear-gradient( to " + (leftOrRight ? "right" : "left") + ",\n                    " + color1 + " 0%,\n                    " + color1 + " " + gradientPercentage + "%,\n                    " + color2 + " 0%\n                )";
-            console.log(container.current.style.backgroundImage);
         }, 50);
     }, []);
 
