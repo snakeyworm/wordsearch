@@ -7,10 +7,12 @@ import { doIntersect, Point } from "./mutils";
 
 // Constants
 
-// TODO Maybe make board bigger
-var BOARD_SIZE = 12;
+// TODO Allow user to input a board size for difficulty
+var BOARD_SIZE = 11;
 var BOARD_AREA = BOARD_SIZE * BOARD_SIZE;
-var FONT_MULTIPLIER = 0.05;
+var BOARD_WIDTH = 0.5;
+var BOARD_HEIGHT = 0.9;
+var FS_FACTOR = 5; // Used in calculation of responsive font size
 
 var INVALID_WORDS_MSG = "Invalid words provided:";
 
@@ -19,17 +21,39 @@ var INVALID_WORDS_MSG = "Invalid words provided:";
 var WORD_DIRECTION = {
     HORIZONTAL: 0,
     VERTICAL: 1,
-    DIAGONAL: 2
+    DIAGONAL_UP: 2,
+    DIAGONAL_DOWN: 3
 
     // Style
-    // TODO Fix letter spacing
-};var startBoardStyle = {
-    position: "fixed"
-};
 
-var foundWordStyle = {
-    textDecoration: "line-through",
-    textDecorationColor: "red"
+};var styles = {
+    board: {
+        position: "fixed",
+        left: "50%",
+        top: "50%",
+        transform: "translate( -50%, -50% )"
+    },
+    boardRect: {
+        width: "100%",
+        height: "100%",
+        rx: 10,
+        fill: "white"
+    },
+    foundWord: {
+        textDecoration: "line-through",
+        textDecorationColor: "red"
+    },
+    boardText: {
+        writingMode: "tb",
+        textOrientation: "upright"
+    },
+    wordStroke: {
+        stroke: "red",
+        strokeWidth: window.innerWidth * 0.005
+    }
+
+    // Constants(Some constants rely on style declaration)
+
     // Generate a number between 0 and n-1
 };var random = function random(n) {
     return Math.floor(Math.random() * n);
@@ -51,20 +75,27 @@ function Board(props) {
         setBoard = _useState2[1]; // Board data
 
 
-    var _useState3 = useState(true),
+    var _useState3 = useState([]),
         _useState4 = _slicedToArray(_useState3, 2),
-        renderSwitch = _useState4[0],
-        reRender = _useState4[1]; // TODO Remove if not needed
+        lines = _useState4[0],
+        setLines = _useState4[1];
 
+    var _useState5 = useState({
+        // Calculate board dimensions
+        width: window.screen.width * BOARD_WIDTH,
+        height: window.innerHeight * BOARD_HEIGHT,
+        // Calculate dimensions of letter on board
+        letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
+        letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE
+    }),
+        _useState6 = _slicedToArray(_useState5, 2),
+        styleOffset = _useState6[0],
+        setStyleOffset = _useState6[1];
 
     var wordCoords = useRef([]);
-
-    var _useState5 = useState(startBoardStyle),
-        _useState6 = _slicedToArray(_useState5, 2),
-        boardStyle = _useState6[0],
-        setBoardStyle = _useState6[1];
-
     var boardDOM = useRef(null);
+
+    console.log;
 
     var populateBoard = function populateBoard() {
 
@@ -72,6 +103,8 @@ function Board(props) {
 
         var requiredArea = 0;
         wordCoords.current = []; // Dump old word coordinate
+
+        console.log(props.words);
 
         // Ensure words are correct length
         props.words.forEach(function (i) {
@@ -87,25 +120,22 @@ function Board(props) {
 
         // Allocate board space
         for (var i = 0; i < BOARD_SIZE; i++) {
-            // Row
+            // Column
 
-            var row = [];
+            var column = [];
 
             for (var _i = 0; _i < BOARD_SIZE; _i++) {
-                // Column
-                row.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
+                // Row
+                column.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
             }
 
-            row.push(React.createElement("br", null)); // Insert break at end of row
-            board.push(row);
+            board.push(column);
         }
 
         // Insert words
         for (var _i2 = 0; _i2 < props.words.length; _i2++) {
             insertWord(props.words[_i2]);
         }setBoard(board);
-
-        console.log(board); // TODO Remove when done
     };
 
     /*
@@ -121,10 +151,10 @@ function Board(props) {
         var end = new Point(0, 0);
 
         // Randomly determine if word is horizontal, vertical, or diagonal
-        var accrossOrDown = random(Object.keys(WORD_DIRECTION).length);
+        var wordDirection = random(Object.keys(WORD_DIRECTION).length);
 
         // Generate coordinates based on direction
-        switch (accrossOrDown) {
+        switch (wordDirection) {
 
             case WORD_DIRECTION.HORIZONTAL:
                 start = new Point(b, a);
@@ -134,27 +164,32 @@ function Board(props) {
                 start = new Point(a, b);
                 end = new Point(a, b + word.length);
                 break;
-            case WORD_DIRECTION.DIAGONAL:
+            case WORD_DIRECTION.DIAGONAL_UP:
+            case WORD_DIRECTION.DIAGONAL_DOWN:
 
                 start = new Point(random(BOARD_SIZE - word.length + 1), random(BOARD_SIZE - word.length + 1));
 
+                // TODO Maybe have wordDirection determine up/down not available space
                 if (random(2) && start.y + word.length - 1 - (word.length - 1) >= 0) {
                     // Diagonal down
                     end = new Point(start.x + word.length - 1, start.y + word.length - 1);
+                    wordDirection = WORD_DIRECTION.DIAGONAL_DOWN;
                 } else {
                     start.y += word.length - 1;
                     // Diagonal up
                     end = new Point(start.x + word.length - 1, start.y - (word.length - 1));
+                    wordDirection = WORD_DIRECTION.DIAGONAL_UP;
                 }
 
         }
 
-        return [start, end];
+        return [start, end, wordDirection];
     };
 
     // Insert given word
     var insertWord = function insertWord(word) {
 
+        console.log(word); // TODO Remove when done
         word = word.toUpperCase();
 
         // Find coordinates where word would fit
@@ -183,22 +218,23 @@ function Board(props) {
                 // Reverse 
                 if (random(2) && random(2)) reverse = word.length - 1;
 
+                // TODO Maybe make a switch statement
                 if (coords1[0].y === coords1[1].y)
                     // Insert word across
                     for (var i = 0; i < word.length; i++) {
-                        board[coords1[0].y][coords1[0].x + i] = word[Math.abs(i - reverse)];
+                        board[coords1[0].x + i][coords1[0].y] = word[Math.abs(i - reverse)];
                     } else if (coords1[0].x === coords1[1].x)
                     // Insert word down
                     for (var _i3 = 0; _i3 < word.length; _i3++) {
-                        board[coords1[0].y + _i3][coords1[0].x] = word[Math.abs(_i3 - reverse)];
+                        board[coords1[0].x][coords1[0].y + _i3] = word[Math.abs(_i3 - reverse)];
                     } else if (coords1[0].y < coords1[1].y)
                     // Diagonally down
                     for (var _i4 = 0; _i4 < word.length; _i4++) {
-                        board[coords1[0].y + _i4][coords1[0].x + _i4] = word[Math.abs(_i4 - reverse)];
+                        board[coords1[0].x + _i4][coords1[0].y + _i4] = word[Math.abs(_i4 - reverse)];
                     } else {
                     // Diagonally up
                     for (var _i5 = 0; _i5 < word.length; _i5++) {
-                        board[coords1[0].y - _i5][coords1[0].x + _i5] = word[Math.abs(_i5 - reverse)];
+                        board[coords1[0].x + _i5][coords1[0].y - _i5] = word[Math.abs(_i5 - reverse)];
                     }
                 }
 
@@ -207,44 +243,17 @@ function Board(props) {
         }
     };
 
-    // TODO Fix resizing(Position and size better)
-    // TODO Figure out how to do this with a reference 
-    var resizeBoard = function resizeBoard() {
-        return setBoardStyle(Object.assign({}, startBoardStyle, {
-            left: window.innerWidth * 0.5 - boardDOM.current.offsetWidth / 2,
-            top: window.innerHeight * 0.5 - boardDOM.current.offsetHeight / 2,
-            fontSize: window.innerWidth * FONT_MULTIPLIER
-        }));
-    };
-
-    var handleKeyDown = function handleKeyDown(event) {
-
-        console.log("Hello");
-        console.log(event);
-    };
-
-    useEffect(function () {
-
-        populateBoard();
-        resizeBoard(); // Initial resize
-
-        // Adjust font on window resize
-        window.onresize = function () {
-            resizeBoard();
-        };
-    }, []);
+    useEffect(populateBoard, []);
 
     // Populate board when new words are received
     useEffect(populateBoard, [props.words]);
 
-    // Resize on board change(For initial render)
-    useEffect(resizeBoard, [board]);
-
-    // TODO Respond to user finding a word(Doesn't render response for some reason)
     // Check for an answer
+    // TODO Fix line placement
     useEffect(function () {
+        console.log("Got an answer: " + props.answer);
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
-        var newBoard = [].concat(_toConsumableArray(board));
+        var newLines = [].concat(_toConsumableArray(lines));
 
         // Check to see if an answer matches
         if (answerIndex !== -1) {
@@ -252,26 +261,89 @@ function Board(props) {
             var coords = wordCoords.current[answerIndex];
             var start = coords[0];
             var end = coords[1];
+            var wordDirection = coords[2];
+            var diagonalAdjustment = (BOARD_SIZE - end.y) * 2;
 
-            if (start.y === end.y) {
-                var word = newBoard[start.y].slice(start.x, end.x);
+            var x1 = styleOffset.letterWidth * start.x;
+            var y1 = styleOffset.letterHeight * start.y;
+            var x2 = styleOffset.letterWidth * end.x;
+            var y2 = styleOffset.letterHeight * end.y;
 
-                newBoard[start.y].splice(start.x, word.length, React.createElement(
-                    "span",
-                    { style: foundWordStyle },
-                    word
-                ));
+            switch (wordDirection) {
+                case WORD_DIRECTION.HORIZONTAL:
+                    y1 += styleOffset.letterWidth / 2;
+                    y2 += styleOffset.letterWidth / 2;
+                    break;
+                case WORD_DIRECTION.VERTICAL:
+                    x1 += styleOffset.letterWidth / 2;
+                    x2 += styleOffset.letterWidth / 2;
+                    break;
+                case WORD_DIRECTION.DIAGONAL_UP:
+                    x2 += styleOffset.letterWidth;
+                    y1 += styleOffset.letterHeight / 2 + diagonalAdjustment;
+                    break;
+                case WORD_DIRECTION.DIAGONAL_DOWN:
+                    x2 += styleOffset.letterWidth;
+                    y2 += styleOffset.letterHeight / 2 - diagonalAdjustment;
+                    break;
             }
 
-            setBoard(newBoard);
+            newLines.push(React.createElement("line", {
+                x1: x1,
+                y1: y1,
+                x2: x2,
+                y2: y2,
+                style: styles.wordStroke
+            }));
+
+            setLines(newLines);
         }
     }, [props.answer]);
 
+    // TODO Not sizing responsivly(And it just was)
+    window.onresize = function () {
+        console.log("Re render");
+        setStyleOffset({
+            // Calculate board dimensions
+            width: window.screen.width * BOARD_WIDTH,
+            height: window.innerHeight * BOARD_HEIGHT,
+            // Calculate dimensions of letter on board
+            letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
+            letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE
+        });
+    };
+
+    var xCount = 0;
+
     return React.createElement(
         "div",
-        { ref: boardDOM, style: boardStyle },
-        board.flat()
+        null,
+        React.createElement(
+            "svg",
+            { style: styles.board, ref: boardDOM, width: styleOffset.width, height: styleOffset.height },
+            React.createElement("rect", { style: styles.boardRect }),
+            React.createElement(
+                "text",
+                {
+                    style: styles.boardText,
+                    fontSize: styleOffset.width / window.innerWidth * FS_FACTOR + "vw"
+                },
+                board.map(function (i) {
+                    return React.createElement(
+                        "tspan",
+                        {
+                            x: styleOffset.width / BOARD_SIZE * ++xCount - styleOffset.width * 0.035,
+                            y: 0,
+                            textLength: styleOffset.height
+                        },
+                        i
+                    );
+                })
+            ),
+            lines
+        )
     );
 }
 
 export default Board;
+export { BOARD_WIDTH, BOARD_SIZE };
