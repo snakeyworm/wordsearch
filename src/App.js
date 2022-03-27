@@ -5,10 +5,20 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { NoEmitOnErrorsPlugin } from "webpack";
-import Board, { BOARD_WIDTH } from "./Board";
+import Board, { BOARD_WIDTH, BOARD_SIZE } from "./Board";
+
+// Constants
+
+// For gradient
 
 var GRADIENT_COLORS = ["#0b536f", "#ef9d1f", "#ef1fe0", "#1fef55", "#fb3232", "#32e3fb", "#f9fb32", "#c832fb"];
 var GRADIENT_RATE = 1;
+
+// For word generation
+
+var WORD_MIN_LENGTH = 3; // Minmum length of genrate word
+var WORD_COUNT = 7; // Number of words to generate
+var WORD_REQUEST = "\n    https://api.wordnik.com/v4/words.json/randomWords?\n    limit=" + WORD_COUNT + "\n    &minLength=" + WORD_MIN_LENGTH + "\n    &maxLength=" + BOARD_SIZE + "\n    &includePartOfSpeech=noun, verb, adverb, adjective, noun-plural\n    &api_key=73v51oy38g5q0jwfh5cmgxsmoi8jpu0ma88xyctfhv1iuf559";
 
 var styles = {
     form: {
@@ -30,9 +40,20 @@ var styles = {
         fontSize: "180%"
     }
 
-    // TODO Add aesthetics
-    // App crontainer
-};function App() {
+    // TODO Make it return random list of words using wordnik
+};function getRandomWords(length) {
+
+    // TODO minLength and maxLength are character lengths of word(FIX)
+    fetch(WORD_REQUEST).then(function (response) {
+        return response.json();
+    }).then(function (data) {
+        console.log(data);
+    });
+}
+
+// TODO Add aesthetics
+// App crontainer
+function App() {
     var _useState = useState(""),
         _useState2 = _slicedToArray(_useState, 2),
         inputBuf = _useState2[0],
@@ -49,6 +70,8 @@ var styles = {
         setWords = _useState6[1];
 
     var container = useRef(null);
+
+    getRandomWords(0);
 
     // Handle user input
     var handleChange = function handleChange(event) {

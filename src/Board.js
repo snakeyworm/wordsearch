@@ -348,4 +348,4 @@ function Board(props) {
 }
 
 export default Board;
-export { BOARD_WIDTH };
+export { BOARD_WIDTH, BOARD_SIZE };

@@ -4,7 +4,11 @@
 import React, { useState,  useRef, useEffect, } from "react"
 import ReactDOM from "react-dom"
 import { NoEmitOnErrorsPlugin } from "webpack"
-import Board, { BOARD_WIDTH } from "./Board"
+import Board, { BOARD_WIDTH, BOARD_SIZE} from "./Board"
+
+// Constants
+
+// For gradient
 
 const GRADIENT_COLORS = [
     "#0b536f",
@@ -17,6 +21,18 @@ const GRADIENT_COLORS = [
     "#c832fb",
 ]; 
 const GRADIENT_RATE = 1
+
+// For word generation
+
+const WORD_MIN_LENGTH = 3 // Minmum length of genrate word
+const WORD_COUNT = 7 // Number of words to generate
+const WORD_REQUEST = `
+    https://api.wordnik.com/v4/words.json/randomWords?
+    limit=${WORD_COUNT}
+    &minLength=${WORD_MIN_LENGTH}
+    &maxLength=${BOARD_SIZE}
+    &includePartOfSpeech=noun,verb,adverb,adjective,noun-plural
+    &api_key=73v51oy38g5q0jwfh5cmgxsmoi8jpu0ma88xyctfhv1iuf559`
 
 const styles = {
     form: {
@@ -39,6 +55,18 @@ const styles = {
     },
 }
 
+// TODO Make it return random list of words using wordnik
+function getRandomWords( length ) {
+    
+    // TODO minLength and maxLength are character lengths of word(FIX)
+    fetch ( WORD_REQUEST ).then( ( response ) => {
+        return response.json()
+    } ).then( ( data ) => {
+        console.log( data )
+    })
+
+}
+
 // TODO Add aesthetics
 // App crontainer
 function App() {
@@ -47,6 +75,8 @@ function App() {
     let [ input, setInput ] = useState( "" )
     let [ words, setWords ] = useState( [ "ice", "bible", "god", "computer", "hockey", "chocolate", "fart", ] )
     let container = useRef( null )
+
+    getRandomWords( 0 )
 
     // Handle user input
     let handleChange = ( event ) => {
