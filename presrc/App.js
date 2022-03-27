@@ -25,14 +25,8 @@ const GRADIENT_RATE = 1
 // For word generation
 
 const WORD_MIN_LENGTH = 3 // Minmum length of genrate word
-const WORD_COUNT = 7 // Number of words to generate
-const WORD_REQUEST = `
-    https://api.wordnik.com/v4/words.json/randomWords?
-    limit=${WORD_COUNT}
-    &minLength=${WORD_MIN_LENGTH}
-    &maxLength=${BOARD_SIZE}
-    &includePartOfSpeech=noun,verb,adverb,adjective,noun-plural
-    &api_key=73v51oy38g5q0jwfh5cmgxsmoi8jpu0ma88xyctfhv1iuf559`
+const WORD_COUNT = 4 // Number of words to generate
+const WORD_REQUEST = `https://api.wordnik.com/v4/words.json/randomWords?limit=${WORD_COUNT}&minLength=${WORD_MIN_LENGTH}&maxLength=${BOARD_SIZE}&includePartOfSpeech=noun,verb,adjective,adverb&api_key=73v51oy38g5q0jwfh5cmgxsmoi8jpu0ma88xyctfhv1iuf559`
 
 const styles = {
     form: {
@@ -56,13 +50,13 @@ const styles = {
 }
 
 // TODO Make it return random list of words using wordnik
-function getRandomWords( length ) {
+async function getRandomWords() {
     
     // TODO minLength and maxLength are character lengths of word(FIX)
-    fetch ( WORD_REQUEST ).then( ( response ) => {
+    return await fetch ( WORD_REQUEST ).then( ( response ) => {
         return response.json()
     } ).then( ( data ) => {
-        console.log( data )
+        return data
     })
 
 }
@@ -73,10 +67,8 @@ function App() {
 
     let [ inputBuf, setInputBuf ] = useState( "" )
     let [ input, setInput ] = useState( "" )
-    let [ words, setWords ] = useState( [ "ice", "bible", "god", "computer", "hockey", "chocolate", "fart", ] )
+    let [ words, setWords ] = useState( [] ) 
     let container = useRef( null )
-
-    getRandomWords( 0 )
 
     // Handle user input
     let handleChange = ( event ) => {
@@ -95,8 +87,13 @@ function App() {
      
     }
 
-    // Linear gradient
+    useEffect( async () => {
+        setWords( await getRandomWords() )
+    }, [] )
+
     useEffect( () => { 
+
+        // Linear gradient
 
         console.log( "re render" )
         let gradientPercentage = GRADIENT_RATE

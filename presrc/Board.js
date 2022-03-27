@@ -80,6 +80,8 @@ function Board( props ) {
     let wordCoords = useRef( [] )
     let boardDOM = useRef( null )
 
+    console.log
+
     let populateBoard = () => {
 
         // Prop checking
@@ -87,8 +89,10 @@ function Board( props ) {
         let requiredArea = 0;
         wordCoords.current = [] // Dump old word coordinate
 
+        console.log( props.words )
+
         // Ensure words are correct length
-        props.words.forEach( i => {
+       props.words.forEach( i => {
             if ( i.length > BOARD_SIZE || i.length === 1 )
                 throw new Error( `${INVALID_WORDS_MSG} word length must be <= ${BOARD_SIZE} and >= 1` )
             requiredArea += i.length
@@ -119,8 +123,9 @@ function Board( props ) {
         }
 
         // Insert words
-        for ( let i = 0; i < props.words.length; i++ )
-            insertWord( props.words[ i ] )
+        for ( let i = 0; i < props.words.length; i++ ) {
+            insertWord( props.words[ i ].word )
+        }
 
         setBoard( board )
 

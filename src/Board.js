@@ -95,12 +95,16 @@ function Board(props) {
     var wordCoords = useRef([]);
     var boardDOM = useRef(null);
 
+    console.log;
+
     var populateBoard = function populateBoard() {
 
         // Prop checking
 
         var requiredArea = 0;
         wordCoords.current = []; // Dump old word coordinate
+
+        console.log(props.words);
 
         // Ensure words are correct length
         props.words.forEach(function (i) {
@@ -130,8 +134,10 @@ function Board(props) {
 
         // Insert words
         for (var _i2 = 0; _i2 < props.words.length; _i2++) {
-            insertWord(props.words[_i2]);
-        }setBoard(board);
+            insertWord(props.words[_i2].word);
+        }
+
+        setBoard(board);
 
         console.log(board); // TODO Remove when done
     };
