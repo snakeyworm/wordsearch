@@ -132,8 +132,6 @@ function Board(props) {
         for (var _i2 = 0; _i2 < props.words.length; _i2++) {
             insertWord(props.words[_i2]);
         }setBoard(board);
-
-        console.log(board); // TODO Remove when done
     };
 
     /*
@@ -235,8 +233,6 @@ function Board(props) {
                     }
                 }
 
-                console.log(word + " " + coords1[2]); // TODO Remove when done
-
                 break;
             }
         }
@@ -286,8 +282,6 @@ function Board(props) {
                     break;
             }
 
-            console.log(styles.wordStroke);
-
             newLines.push(React.createElement("line", {
                 x1: x1,
                 y1: y1,
@@ -314,8 +308,6 @@ function Board(props) {
     };
 
     var xCount = 0;
-
-    console.log(styleOffset.width / window.innerWidth * FS_FACTOR + "vm");
 
     return React.createElement(
         "div",

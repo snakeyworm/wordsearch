@@ -124,8 +124,6 @@ function Board( props ) {
 
         setBoard( board )
 
-        console.log( board ) // TODO Remove when done
-
     }
 
     /*
@@ -236,8 +234,6 @@ function Board( props ) {
                         board[ coords1[ 0 ].x + i ][ coords1[ 0 ].y - i ] = word[ Math.abs( i - reverse ) ]
                 }
 
-                console.log( `${word} ${coords1[ 2 ]}` ) // TODO Remove when done
-
                 break
 
             }
@@ -291,8 +287,6 @@ function Board( props ) {
                     break
             }
 
-            console.log( styles.wordStroke )
-
             newLines.push( <line
                 x1={x1}
                 y1={y1}
@@ -320,8 +314,6 @@ function Board( props ) {
     }
 
     let xCount = 0
-
-    console.log( `${styleOffset.width / window.innerWidth * FS_FACTOR}vm` )
 
     return (
         <div>

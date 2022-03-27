@@ -52,7 +52,6 @@ var styles = {
 
     // Handle user input
     var handleChange = function handleChange(event) {
-        console.log(event);
         setInputBuf(event.target.value);
     };
 
@@ -78,7 +77,6 @@ var styles = {
         setInterval(function () {
             gradientPercentage += leftOrRight ? GRADIENT_RATE : -GRADIENT_RATE;
             if (gradientPercentage >= 100 || gradientPercentage <= 0) {
-                console.log("Color change");
                 index = index + 1 < GRADIENT_COLORS.legnth ? index + 1 : index;
                 console.log(index);
                 console.log(GRADIENT_COLORS.length);
