@@ -150,11 +150,13 @@ var styles = {
         setInterval(function () {
             gradientPercentage += leftOrRight ? GRADIENT_RATE : -GRADIENT_RATE;
             if (gradientPercentage >= 100 || gradientPercentage <= 0) {
+                // Switch direction and colors
                 index = index + 1 < GRADIENT_COLORS.legnth ? index + 1 : index;
                 color1 = GRADIENT_COLORS.slice(index - 1, index)[0];
                 color2 = GRADIENT_COLORS.slice(index, index + 1)[0];
                 leftOrRight = !leftOrRight;
             }
+            // Update gradient
             container.current.style.backgroundImage = "\n                linear-gradient( to " + (leftOrRight ? "right" : "left") + ",\n                    " + color1 + " 0%,\n                    " + color1 + " " + gradientPercentage + "%,\n                    " + color2 + " 0%\n                )";
         }, 50);
     }, []);

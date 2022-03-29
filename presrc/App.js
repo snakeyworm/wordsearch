@@ -104,11 +104,13 @@ function App() {
         setInterval( ()  => {
             gradientPercentage += ( leftOrRight ) ? GRADIENT_RATE : -GRADIENT_RATE
             if ( gradientPercentage >= 100 || gradientPercentage <= 0 ) {
+                // Switch direction and colors
                 index = index + 1 < GRADIENT_COLORS.legnth ? index + 1 : index
                 color1 = GRADIENT_COLORS.slice( index - 1, index )[0]
                 color2 = GRADIENT_COLORS.slice( index, index + 1 )[0]
                 leftOrRight = !leftOrRight
             }
+            // Update gradient
             container.current.style.backgroundImage = `
                 linear-gradient( to ${leftOrRight ? "right" : "left"},
                     ${color1} 0%,

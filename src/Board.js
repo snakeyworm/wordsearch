@@ -95,8 +95,6 @@ function Board(props) {
     var wordCoords = useRef([]);
     var boardDOM = useRef(null);
 
-    console.log;
-
     var populateBoard = function populateBoard() {
 
         // Prop checking
@@ -248,10 +246,64 @@ function Board(props) {
     // Populate board when new words are received
     useEffect(populateBoard, [props.words]);
 
+    function newRedLine(coords) {
+
+        var newLines = [].concat(_toConsumableArray(lines));
+
+        var start = coords[0];
+        var end = coords[1];
+        var wordDirection = coords[2];
+        var diagonalAdjustment = (BOARD_SIZE - end.y) * 2;
+
+        var x1 = styleOffset.letterWidth * start.x;
+        var y1 = styleOffset.letterHeight * start.y;
+        var x2 = styleOffset.letterWidth * end.x;
+        var y2 = styleOffset.letterHeight * end.y;
+
+        switch (wordDirection) {
+            case WORD_DIRECTION.HORIZONTAL:
+                y1 += styleOffset.letterWidth / 2;
+                y2 += styleOffset.letterWidth / 2;
+                break;
+            case WORD_DIRECTION.VERTICAL:
+                x1 += styleOffset.letterWidth / 2;
+                x2 += styleOffset.letterWidth / 2;
+                break;
+            case WORD_DIRECTION.DIAGONAL_UP:
+                x2 += styleOffset.letterWidth;
+                y1 += styleOffset.letterHeight / 2 + diagonalAdjustment;
+                break;
+            case WORD_DIRECTION.DIAGONAL_DOWN:
+                x2 += styleOffset.letterWidth;
+                y2 += styleOffset.letterHeight / 2 - diagonalAdjustment;
+                break;
+        }
+
+        newLines.push(React.createElement("line", {
+            x1: x1,
+            y1: y1,
+            x2: x2,
+            y2: y2,
+            style: styles.wordStroke
+        }));
+
+        setLines(newLines);
+    }
+
+    // TODO As the line moves accross the board it becomes offset and is askew to the words
+    useEffect(function () {
+        return newRedLine([{
+            x: BOARD_SIZE / 2,
+            y: 0
+        }, {
+            x: BOARD_SIZE / 2,
+            y: BOARD_SIZE
+        }]);
+    }, []);
+
     // Check for an answer
     // TODO Fix line placement
     useEffect(function () {
-        console.log("Got an answer: " + props.answer);
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
         var newLines = [].concat(_toConsumableArray(lines));
 

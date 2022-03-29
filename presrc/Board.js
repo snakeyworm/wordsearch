@@ -80,8 +80,6 @@ function Board( props ) {
     let wordCoords = useRef( [] )
     let boardDOM = useRef( null )
 
-    console.log
-
     let populateBoard = () => {
 
         // Prop checking
@@ -253,10 +251,66 @@ function Board( props ) {
     // Populate board when new words are received
     useEffect( populateBoard, [ props.words ] )
 
+    function newRedLine( coords ) {
+
+        let newLines = [...lines]
+
+        let start = coords[ 0 ]
+        let end = coords[ 1 ]
+        let wordDirection = coords[ 2 ]
+        let diagonalAdjustment = ( BOARD_SIZE - end.y ) * 2
+
+        let x1 = styleOffset.letterWidth * start.x
+        let y1 = styleOffset.letterHeight * start.y
+        let x2 = styleOffset.letterWidth * end.x
+        let y2 = styleOffset.letterHeight * end.y
+
+        switch ( wordDirection ) {
+            case WORD_DIRECTION.HORIZONTAL:
+                y1 += styleOffset.letterWidth / 2
+                y2 += styleOffset.letterWidth / 2
+                break
+            case WORD_DIRECTION.VERTICAL:
+                x1 += styleOffset.letterWidth / 2
+                x2 += styleOffset.letterWidth / 2
+                break
+            case WORD_DIRECTION.DIAGONAL_UP:
+                x2 += styleOffset.letterWidth
+                y1 += styleOffset.letterHeight / 2 + diagonalAdjustment
+                break
+            case WORD_DIRECTION.DIAGONAL_DOWN:
+                x2 += styleOffset.letterWidth
+                y2 += styleOffset.letterHeight / 2 - diagonalAdjustment
+                break
+        }
+
+        newLines.push( <line
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            style={styles.wordStroke}
+        /> )
+
+        setLines( newLines )
+
+    }
+
+    // TODO As the line moves accross the board it becomes offset and is askew to the words
+    useEffect( () => newRedLine( [ 
+        { 
+            x: BOARD_SIZE/2,
+            y: 0,
+        },
+        {
+            x: BOARD_SIZE/2,
+            y: BOARD_SIZE,
+        }
+    ] ), [] )
+
     // Check for an answer
     // TODO Fix line placement
     useEffect( () => {
-        console.log( "Got an answer: " + props.answer )
         let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
         let newLines = [ ...lines ]
 
