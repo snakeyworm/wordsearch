@@ -63,7 +63,6 @@ async function getRandomWords() {
 
 }
 
-// TODO Add aesthetics
 // App crontainer
 function App() {
 
@@ -92,6 +91,7 @@ function App() {
         setWords( await getRandomWords() )
     }, [] )
 
+    // TODO Finish linear gradient
     useEffect( () => { 
 
         // Linear gradient

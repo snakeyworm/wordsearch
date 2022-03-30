@@ -35,7 +35,6 @@ var getRandomWords = function () {
     };
 }();
 
-// TODO Add aesthetics
 // App crontainer
 
 
@@ -138,6 +137,7 @@ var styles = {
         }, _callee2, _this);
     })), []);
 
+    // TODO Finish linear gradient
     useEffect(function () {
 
         // Linear gradient

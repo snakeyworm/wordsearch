@@ -74,8 +74,8 @@ function Board( props ) {
         width: window.screen.width * BOARD_WIDTH,
         height: window.innerHeight * BOARD_HEIGHT,
         // Calculate dimensions of letter on board
-        letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
-        letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE,
+        // letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
+        // letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE,
     } )
     let wordCoords = useRef( [] )
     let boardDOM = useRef( null )
@@ -90,7 +90,7 @@ function Board( props ) {
         console.log( props.words )
 
         // Ensure words are correct length
-       props.words.forEach( i => {
+        props.words.forEach( i => {
             if ( i.length > BOARD_SIZE || i.length === 1 )
                 throw new Error( `${INVALID_WORDS_MSG} word length must be <= ${BOARD_SIZE} and >= 1` )
             requiredArea += i.length
@@ -213,6 +213,7 @@ function Board( props ) {
             if ( !intersect ) {
 
                 wordCoords.current.push( coords1 )
+                console.log( coords1 )
 
                 // Reverse 
                 if ( random( 2 ) && random( 2 ) )
@@ -251,65 +252,8 @@ function Board( props ) {
     // Populate board when new words are received
     useEffect( populateBoard, [ props.words ] )
 
-    function newRedLine( coords ) {
-
-        let newLines = [...lines]
-
-        let start = coords[ 0 ]
-        let end = coords[ 1 ]
-        let wordDirection = coords[ 2 ]
-        let diagonalAdjustment = ( BOARD_SIZE - end.y ) * 2
-
-        let x1 = styleOffset.letterWidth * start.x
-        let y1 = styleOffset.letterHeight * start.y
-        let x2 = styleOffset.letterWidth * end.x
-        let y2 = styleOffset.letterHeight * end.y
-
-        switch ( wordDirection ) {
-            case WORD_DIRECTION.HORIZONTAL:
-                y1 += styleOffset.letterWidth / 2
-                y2 += styleOffset.letterWidth / 2
-                break
-            case WORD_DIRECTION.VERTICAL:
-                x1 += styleOffset.letterWidth / 2
-                x2 += styleOffset.letterWidth / 2
-                break
-            case WORD_DIRECTION.DIAGONAL_UP:
-                x2 += styleOffset.letterWidth
-                y1 += styleOffset.letterHeight / 2 + diagonalAdjustment
-                break
-            case WORD_DIRECTION.DIAGONAL_DOWN:
-                x2 += styleOffset.letterWidth
-                y2 += styleOffset.letterHeight / 2 - diagonalAdjustment
-                break
-        }
-
-        newLines.push( <line
-            x1={x1}
-            y1={y1}
-            x2={x2}
-            y2={y2}
-            style={styles.wordStroke}
-        /> )
-
-        setLines( newLines )
-
-    }
-
-    // TODO As the line moves accross the board it becomes offset and is askew to the words
-    useEffect( () => newRedLine( [ 
-        { 
-            x: BOARD_SIZE/2,
-            y: 0,
-        },
-        {
-            x: BOARD_SIZE/2,
-            y: BOARD_SIZE,
-        }
-    ] ), [] )
-
+    // TODO Make line placement is responsive
     // Check for an answer
-    // TODO Fix line placement
     useEffect( () => {
         let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
         let newLines = [ ...lines ]
@@ -318,35 +262,42 @@ function Board( props ) {
         if ( answerIndex !== -1 ) {
 
             let coords = wordCoords.current[ answerIndex ]
+
             let start = coords[ 0 ]
             let end = coords[ 1 ]
             let wordDirection = coords[ 2 ]
-            let diagonalAdjustment = ( BOARD_SIZE - end.y ) * 2
-
-            let x1 = styleOffset.letterWidth * start.x
-            let y1 = styleOffset.letterHeight * start.y
-            let x2 = styleOffset.letterWidth * end.x
-            let y2 = styleOffset.letterHeight * end.y
-
+    
+            let xUnit = styleOffset.width / BOARD_SIZE // X-Unit to move each line by
+            // TODO Not accurate with all screen sizes fix soon
+            let yUnit = styleOffset.height / (BOARD_SIZE-0.325) // Y-Unit to move each line by
+            let startXOffset = styleOffset.width / BOARD_SIZE / 2 // X-Offset of vertically placed lines
+            let startYOffset = styleOffset.height*0.0325 // Y-Offset of horizontally placed lines
+            
+            // Line coordinates
+            let x1 = xUnit * start.x
+            let y1 = yUnit * start.y
+            let x2 = xUnit * end.x
+            let y2 = yUnit * end.y
+    
             switch ( wordDirection ) {
                 case WORD_DIRECTION.HORIZONTAL:
-                    y1 += styleOffset.letterWidth / 2
-                    y2 += styleOffset.letterWidth / 2
+                    y1 += startYOffset
+                    y2 += startYOffset
                     break
                 case WORD_DIRECTION.VERTICAL:
-                    x1 += styleOffset.letterWidth / 2
-                    x2 += styleOffset.letterWidth / 2
+                    x1 += startXOffset
+                    x2 += startXOffset
                     break
                 case WORD_DIRECTION.DIAGONAL_UP:
-                    x2 += styleOffset.letterWidth
-                    y1 += styleOffset.letterHeight / 2 + diagonalAdjustment
+                    y1 -= styleOffset.height*0.015
+                    y2 -= styleOffset.height*0.015
                     break
                 case WORD_DIRECTION.DIAGONAL_DOWN:
-                    x2 += styleOffset.letterWidth
-                    y2 += styleOffset.letterHeight / 2 - diagonalAdjustment
+                    y1 -= styleOffset.height*0.015
+                    y2 -= styleOffset.height*0.015
                     break
             }
-
+    
             newLines.push( <line
                 x1={x1}
                 y1={y1}
@@ -354,7 +305,7 @@ function Board( props ) {
                 y2={y2}
                 style={styles.wordStroke}
             /> )
-
+    
             setLines( newLines )
 
         }
@@ -368,8 +319,8 @@ function Board( props ) {
             width: window.screen.width * BOARD_WIDTH,
             height: window.innerHeight * BOARD_HEIGHT,
             // Calculate dimensions of letter on board
-            letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
-            letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE,
+            // letterWidth: window.screen.width * BOARD_WIDTH / BOARD_SIZE,
+            // letterHeight: window.innerHeight * BOARD_HEIGHT / BOARD_SIZE,
         } )
     }
 
@@ -387,7 +338,7 @@ function Board( props ) {
                 >{
                         board.map( ( i ) => {
                             return <tspan
-                                x={styleOffset.width / BOARD_SIZE * ++xCount - styleOffset.width * 0.035}
+                                x={styleOffset.width / BOARD_SIZE / 2 + styleOffset.width / BOARD_SIZE * xCount++}
                                 y={0}
                                 textLength={styleOffset.height}
                             >
