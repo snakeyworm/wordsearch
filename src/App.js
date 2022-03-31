@@ -51,7 +51,7 @@ import Board, { BOARD_WIDTH, BOARD_SIZE } from "./Board";
 
 // For gradient
 
-var GRADIENT_COLORS = ["#0b536f", "#ef9d1f", "#ef1fe0", "#1fef55", "#fb3232", "#32e3fb", "#f9fb32", "#c832fb"];
+var GRADIENT_COLOR = 255;
 var GRADIENT_RATE = 1;
 
 // For word generation
@@ -143,21 +143,19 @@ var styles = {
         // Linear gradient
 
         var gradientPercentage = GRADIENT_RATE;
-        var index = 1; // Index of next color
         var leftOrRight = true; // Direction of gradient
-        var color1 = GRADIENT_COLORS[index - 1];
-        var color2 = GRADIENT_COLORS[index];
+        var blue = GRADIENT_COLOR;
         setInterval(function () {
             gradientPercentage += leftOrRight ? GRADIENT_RATE : -GRADIENT_RATE;
+
+            // Switch direction and colors
             if (gradientPercentage >= 100 || gradientPercentage <= 0) {
-                // Switch direction and colors
-                index = index + 1 < GRADIENT_COLORS.legnth ? index + 1 : index;
-                color1 = GRADIENT_COLORS.slice(index - 1, index)[0];
-                color2 = GRADIENT_COLORS.slice(index, index + 1)[0];
                 leftOrRight = !leftOrRight;
+                blue -= 12.75;
+                if (blue === 0) blue = 255;
             }
             // Update gradient
-            container.current.style.backgroundImage = "\n                linear-gradient( to " + (leftOrRight ? "right" : "left") + ",\n                    " + color1 + " 0%,\n                    " + color1 + " " + gradientPercentage + "%,\n                    " + color2 + " 0%\n                )";
+            container.current.style.backgroundImage = "\n                linear-gradient( to right,\n                    rgb( 0, 0, " + blue + " ) 0%,\n                    rgb( 0, 0, " + blue + " ) " + gradientPercentage + "%,\n                    #000000 0%\n                )";
         }, 50);
     }, []);
 

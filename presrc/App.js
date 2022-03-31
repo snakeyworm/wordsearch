@@ -10,16 +10,7 @@ import Board, { BOARD_WIDTH, BOARD_SIZE} from "./Board"
 
 // For gradient
 
-const GRADIENT_COLORS = [
-    "#0b536f",
-    "#ef9d1f",
-    "#ef1fe0",
-    "#1fef55",
-    "#fb3232",
-    "#32e3fb",
-    "#f9fb32", 
-    "#c832fb",
-]; 
+let GRADIENT_COLOR = 255
 const GRADIENT_RATE = 1
 
 // For word generation
@@ -97,25 +88,24 @@ function App() {
         // Linear gradient
 
         let gradientPercentage = GRADIENT_RATE
-        let index = 1 // Index of next color
         let leftOrRight = true // Direction of gradient
-        let color1 = GRADIENT_COLORS[ index - 1 ]
-        let color2 = GRADIENT_COLORS[ index ]
+        let blue = GRADIENT_COLOR
         setInterval( ()  => {
             gradientPercentage += ( leftOrRight ) ? GRADIENT_RATE : -GRADIENT_RATE
+            
+            // Switch direction and colors
             if ( gradientPercentage >= 100 || gradientPercentage <= 0 ) {
-                // Switch direction and colors
-                index = index + 1 < GRADIENT_COLORS.legnth ? index + 1 : index
-                color1 = GRADIENT_COLORS.slice( index - 1, index )[0]
-                color2 = GRADIENT_COLORS.slice( index, index + 1 )[0]
                 leftOrRight = !leftOrRight
+                blue -= 12.75
+                if ( blue === 0 )
+                    blue = 255
             }
             // Update gradient
             container.current.style.backgroundImage = `
-                linear-gradient( to ${leftOrRight ? "right" : "left"},
-                    ${color1} 0%,
-                    ${color1} ${gradientPercentage}%,
-                    ${color2} 0%
+                linear-gradient( to right,
+                    rgb( 0, 0, ${blue} ) 0%,
+                    rgb( 0, 0, ${blue} ) ${gradientPercentage}%,
+                    #000000 0%
                 )`
         }, 50 )
 
