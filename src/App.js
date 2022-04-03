@@ -14,7 +14,7 @@ var getRandomWords = function () {
                         }).then(function (data) {
                             var words = [];
                             data.forEach(function (element) {
-                                return words.push(element.word);
+                                return words.push(element.word.toLowerCase());
                             });
                             return words;
                         });
@@ -41,6 +41,10 @@ var getRandomWords = function () {
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 // wordsearch v0.0.1
+// TODO Diagonal word red lines don't meet last letter
+// TODO Down diagonal word red lines are not accurate
+// TODO Reset board when won and alert player of victory
+// TODO Handle wordnik api error
 
 import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
@@ -119,26 +123,36 @@ var styles = {
         }
     };
 
-    useEffect(_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
-        return _regeneratorRuntime.wrap(function _callee2$(_context2) {
-            while (1) {
-                switch (_context2.prev = _context2.next) {
-                    case 0:
-                        _context2.t0 = setWords;
-                        _context2.next = 3;
-                        return getRandomWords();
+    // Get new words
+    var newWords = function () {
+        var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
+            return _regeneratorRuntime.wrap(function _callee2$(_context2) {
+                while (1) {
+                    switch (_context2.prev = _context2.next) {
+                        case 0:
+                            console.log("Get new words");
+                            _context2.t0 = setWords;
+                            _context2.next = 4;
+                            return getRandomWords();
 
-                    case 3:
-                        _context2.t1 = _context2.sent;
-                        (0, _context2.t0)(_context2.t1);
+                        case 4:
+                            _context2.t1 = _context2.sent;
+                            (0, _context2.t0)(_context2.t1);
 
-                    case 5:
-                    case "end":
-                        return _context2.stop();
+                        case 6:
+                        case "end":
+                            return _context2.stop();
+                    }
                 }
-            }
-        }, _callee2, _this);
-    })), []);
+            }, _callee2, _this);
+        }));
+
+        return function newWords() {
+            return _ref2.apply(this, arguments);
+        };
+    }();
+
+    useEffect(newWords, []);
 
     // TODO Finish linear gradient
     useEffect(function () {
@@ -154,7 +168,7 @@ var styles = {
                 if (BG_COLOR[i] > 255 || BG_COLOR[i] < 0) BG_COLOR[i] = Math.random() * 255 + 1;
             } // Update gradient
             container.current.style.backgroundColor = "rgb( " + BG_COLOR[0] + ", " + BG_COLOR[1] + ", " + BG_COLOR[2] + " )";
-        }, 500);
+        }, 250);
     }, []);
 
     return React.createElement(
@@ -175,7 +189,7 @@ var styles = {
                 onChange: handleChange,
                 onKeyPress: handleKeyPress })
         ),
-        React.createElement(Board, { words: words, answer: input })
+        React.createElement(Board, { words: words, newWords: newWords, answer: input })
     );
 }
 

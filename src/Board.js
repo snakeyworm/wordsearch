@@ -30,7 +30,7 @@ var WORD_DIRECTION = {
     board: {
         position: "fixed",
         left: "50%",
-        top: "50%",
+        top: "52%",
         transform: "translate( -50%, -50% )"
     },
     boardRect: {
@@ -79,6 +79,8 @@ function Board(props) {
         _useState4 = _slicedToArray(_useState3, 2),
         lines = _useState4[0],
         setLines = _useState4[1];
+
+    var answers = useRef(0);
 
     var _useState5 = useState({
         // Calculate board dimensions
@@ -254,6 +256,8 @@ function Board(props) {
         // Check to see if an answer matches
         if (answerIndex !== -1) {
 
+            answers.current += 1;
+
             var coords = wordCoords.current[answerIndex];
 
             var start = coords[0];
@@ -282,10 +286,14 @@ function Board(props) {
                     x2 += startXOffset;
                     break;
                 case WORD_DIRECTION.DIAGONAL_UP:
+                    x2 += xUnit;
+                    y1 += yUnit;
                     y1 -= styleOffset.height * 0.015;
                     y2 -= styleOffset.height * 0.015;
                     break;
                 case WORD_DIRECTION.DIAGONAL_DOWN:
+                    x2 += xUnit;
+                    y2 += yUnit;
                     y1 -= styleOffset.height * 0.015;
                     y2 -= styleOffset.height * 0.015;
                     break;
@@ -300,6 +308,16 @@ function Board(props) {
             }));
 
             setLines(newLines);
+
+            console.log(answers.current);
+            setTimeout(function () {
+                // Get new words and clear old lines
+                if (answers.current === props.words.length) {
+                    answers.current = 0;
+                    props.newWords();
+                    setLines([]);
+                }
+            }, 5000);
         }
     }, [props.answer]);
 

@@ -28,7 +28,7 @@ const styles = {
     board: {
         position: "fixed",
         left: "50%",
-        top: "50%",
+        top: "52%",
         transform: "translate( -50%, -50% )",
     },
     boardRect: {
@@ -68,6 +68,7 @@ function Board( props ) {
 
     let [ board, setBoard ] = useState( [] ) // Board data
     let [ lines, setLines ] = useState( [] )
+    let answers = useRef( 0 )
 
     let [ styleOffset, setStyleOffset ] = useState( {
         // Calculate board dimensions
@@ -258,25 +259,27 @@ function Board( props ) {
 
         // Check to see if an answer matches
         if ( answerIndex !== -1 ) {
+            
+            answers.current += 1
 
             let coords = wordCoords.current[ answerIndex ]
 
             let start = coords[ 0 ]
             let end = coords[ 1 ]
             let wordDirection = coords[ 2 ]
-    
+
             let xUnit = styleOffset.width / BOARD_SIZE // X-Unit to move each line by
             // TODO Not accurate with all screen sizes fix soon
-            let yUnit = styleOffset.height / (BOARD_SIZE-0.325) // Y-Unit to move each line by
+            let yUnit = styleOffset.height / ( BOARD_SIZE - 0.325 ) // Y-Unit to move each line by
             let startXOffset = styleOffset.width / BOARD_SIZE / 2 // X-Offset of vertically placed lines
-            let startYOffset = styleOffset.height*0.0325 // Y-Offset of horizontally placed lines
-            
+            let startYOffset = styleOffset.height * 0.0325 // Y-Offset of horizontally placed lines
+
             // Line coordinates
             let x1 = xUnit * start.x
             let y1 = yUnit * start.y
             let x2 = xUnit * end.x
             let y2 = yUnit * end.y
-    
+
             switch ( wordDirection ) {
                 case WORD_DIRECTION.HORIZONTAL:
                     y1 += startYOffset
@@ -287,15 +290,19 @@ function Board( props ) {
                     x2 += startXOffset
                     break
                 case WORD_DIRECTION.DIAGONAL_UP:
-                    y1 -= styleOffset.height*0.015
-                    y2 -= styleOffset.height*0.015
+                    x2 += xUnit
+                    y1 += yUnit
+                    y1 -= styleOffset.height * 0.015
+                    y2 -= styleOffset.height * 0.015
                     break
                 case WORD_DIRECTION.DIAGONAL_DOWN:
-                    y1 -= styleOffset.height*0.015
-                    y2 -= styleOffset.height*0.015
+                    x2 += xUnit
+                    y2 += yUnit
+                    y1 -= styleOffset.height * 0.015
+                    y2 -= styleOffset.height * 0.015
                     break
             }
-    
+
             newLines.push( <line
                 x1={x1}
                 y1={y1}
@@ -303,8 +310,18 @@ function Board( props ) {
                 y2={y2}
                 style={styles.wordStroke}
             /> )
-    
+
             setLines( newLines )
+
+            console.log( answers.current )
+            setTimeout( () => {
+                // Get new words and clear old lines
+                if ( answers.current === props.words.length ) {
+                    answers.current = 0
+                    props.newWords()
+                    setLines( [] )
+                }
+            }, 5000 )
 
         }
     }, [ props.answer ] )

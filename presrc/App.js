@@ -1,5 +1,9 @@
 
 // wordsearch v0.0.1
+// TODO Diagonal word red lines don't meet last letter
+// TODO Down diagonal word red lines are not accurate
+// TODO Reset board when won and alert player of victory
+// TODO Handle wordnik api error
 
 import React, { useState,  useRef, useEffect, } from "react"
 import ReactDOM from "react-dom"
@@ -49,7 +53,7 @@ async function getRandomWords() {
         return response.json()
     } ).then( ( data ) => {
         let words = []
-        data.forEach( ( element ) => words.push( element.word ) )
+        data.forEach( ( element ) => words.push( element.word.toLowerCase() ) )
         return words
     })
 
@@ -79,9 +83,13 @@ function App() {
      
     }
 
-    useEffect( async () => {
+    // Get new words
+    let newWords = async () => {
+        console.log( "Get new words" )
         setWords( await getRandomWords() )
-    }, [] )
+    }
+
+    useEffect( newWords, [] )
 
     // TODO Finish linear gradient
     useEffect( () => { 
@@ -101,7 +109,7 @@ function App() {
             // Update gradient
             container.current.style.backgroundColor = `rgb( ${BG_COLOR[0]}, ${BG_COLOR[1]}, ${BG_COLOR[2]} )`
                 
-        }, 500 )
+        }, 250 )
 
     }, [] )
 
@@ -120,7 +128,7 @@ function App() {
                 onKeyPress={handleKeyPress}>
             </input>
         </div>
-        <Board words={words} answer={input} />
+        <Board words={words} newWords={newWords} answer={input} />
     </div> )
 
 }
