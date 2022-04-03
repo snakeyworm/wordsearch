@@ -102,7 +102,7 @@ function Board(props) {
         var requiredArea = 0;
         wordCoords.current = []; // Dump old word coordinate
 
-        console.log(props.words);
+        console.log(props.words); // TODO Remove when done
 
         // Ensure words are correct length
         props.words.forEach(function (i) {
@@ -187,7 +187,6 @@ function Board(props) {
     // Insert given word
     var insertWord = function insertWord(word) {
 
-        console.log(word); // TODO Remove when done
         word = word.toUpperCase();
 
         // Find coordinates where word would fit
@@ -212,7 +211,6 @@ function Board(props) {
             if (!intersect) {
 
                 wordCoords.current.push(coords1);
-                console.log(coords1);
 
                 // Reverse 
                 if (random(2) && random(2)) reverse = word.length - 1;
@@ -307,7 +305,6 @@ function Board(props) {
 
     // TODO Not sizing responsivly(And it just was)
     window.onresize = function () {
-        console.log("Re render");
         setStyleOffset({
             // Calculate board dimensions
             width: window.screen.width * BOARD_WIDTH,
