@@ -51,8 +51,11 @@ import Board, { BOARD_WIDTH, BOARD_SIZE } from "./Board";
 
 // For gradient
 
-var GRADIENT_COLOR = 255;
-var GRADIENT_RATE = 1;
+var BG_COLOR = [Math.random() * 255 + 1, Math.random() * 255 + 1, Math.random() * 255 + 1];
+// Return random float increment between -1 and 1 
+var randomIncrement = function randomIncrement() {
+    return [1, -1][Math.floor(Math.random())] * Math.random();
+};
 
 // For word generation
 
@@ -139,24 +142,19 @@ var styles = {
 
     // TODO Finish linear gradient
     useEffect(function () {
-
         // Linear gradient
-
-        var gradientPercentage = GRADIENT_RATE;
-        var leftOrRight = true; // Direction of gradient
-        var blue = GRADIENT_COLOR;
         setInterval(function () {
-            gradientPercentage += leftOrRight ? GRADIENT_RATE : -GRADIENT_RATE;
 
-            // Switch direction and colors
-            if (gradientPercentage >= 100 || gradientPercentage <= 0) {
-                leftOrRight = !leftOrRight;
-                blue -= 12.75;
-                if (blue === 0) blue = 255;
-            }
-            // Update gradient
-            container.current.style.backgroundImage = "\n                linear-gradient( to right,\n                    rgb( 0, 0, " + blue + " ) 0%,\n                    rgb( 0, 0, " + blue + " ) " + gradientPercentage + "%,\n                    #000000 0%\n                )";
-        }, 50);
+            BG_COLOR[0] += randomIncrement();
+            BG_COLOR[1] += randomIncrement();
+            BG_COLOR[2] += randomIncrement();
+
+            // Reset if color is out of range
+            for (var i = 0; i < BG_COLOR.length; i++) {
+                if (BG_COLOR[i] > 255 || BG_COLOR[i] < 0) BG_COLOR[i] = Math.random() * 255 + 1;
+            } // Update gradient
+            container.current.style.backgroundColor = "rgb( " + BG_COLOR[0] + ", " + BG_COLOR[1] + ", " + BG_COLOR[2] + " )";
+        }, 500);
     }, []);
 
     return React.createElement(

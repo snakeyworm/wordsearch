@@ -10,8 +10,9 @@ import Board, { BOARD_WIDTH, BOARD_SIZE} from "./Board"
 
 // For gradient
 
-let GRADIENT_COLOR = 255
-const GRADIENT_RATE = 1
+let BG_COLOR = [ ( Math.random() * 255 ) + 1, ( Math.random() * 255 ) + 1, ( Math.random() * 255 ) + 1 ]
+// Return random float increment between -1 and 1 
+let randomIncrement = () => [ 1, -1 ][ Math.floor( Math.random() ) ] * Math.random()
 
 // For word generation
 
@@ -84,30 +85,23 @@ function App() {
 
     // TODO Finish linear gradient
     useEffect( () => { 
-
         // Linear gradient
-
-        let gradientPercentage = GRADIENT_RATE
-        let leftOrRight = true // Direction of gradient
-        let blue = GRADIENT_COLOR
         setInterval( ()  => {
-            gradientPercentage += ( leftOrRight ) ? GRADIENT_RATE : -GRADIENT_RATE
-            
-            // Switch direction and colors
-            if ( gradientPercentage >= 100 || gradientPercentage <= 0 ) {
-                leftOrRight = !leftOrRight
-                blue -= 12.75
-                if ( blue === 0 )
-                    blue = 255
-            }
+  
+            BG_COLOR[0] += randomIncrement()
+            BG_COLOR[1] += randomIncrement()
+            BG_COLOR[2] += randomIncrement()
+
+            // Reset if color is out of range
+            for ( let i=0; i < BG_COLOR.length; i++ )
+                if ( BG_COLOR[i] > 255 || BG_COLOR[i] < 0 )
+                    BG_COLOR[i] = Math.random() * 255 + 1
+
+
             // Update gradient
-            container.current.style.backgroundImage = `
-                linear-gradient( to right,
-                    rgb( 0, 0, ${blue} ) 0%,
-                    rgb( 0, 0, ${blue} ) ${gradientPercentage}%,
-                    #000000 0%
-                )`
-        }, 50 )
+            container.current.style.backgroundColor = `rgb( ${BG_COLOR[0]}, ${BG_COLOR[1]}, ${BG_COLOR[2]} )`
+                
+        }, 500 )
 
     }, [] )
 
