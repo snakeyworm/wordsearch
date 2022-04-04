@@ -16,6 +16,10 @@ var FS_FACTOR = 5; // Used in calculation of responsive font size
 
 var INVALID_WORDS_MSG = "Invalid words provided:";
 
+// Sounds
+var WIN_SND = new Audio("./assets/sound/win_sound.mp3");
+var WORD_FOUND_SND = new Audio("./assets/sound/word_found.mp3");
+
 // Enums
 
 var WORD_DIRECTION = {
@@ -104,7 +108,12 @@ function Board(props) {
         var requiredArea = 0;
         wordCoords.current = []; // Dump old word coordinate
 
-        console.log(props.words); // TODO Remove when done
+        // Generate answer sheet
+        var answers = "Answers: ";
+        for (var i = 0; i < props.words.length; i++) {
+            answers += props.words[i] + ",";
+        } // Log answer sheet
+        console.log(answers);
 
         // Ensure words are correct length
         props.words.forEach(function (i) {
@@ -119,12 +128,12 @@ function Board(props) {
         board = [];
 
         // Allocate board space
-        for (var i = 0; i < BOARD_SIZE; i++) {
+        for (var _i = 0; _i < BOARD_SIZE; _i++) {
             // Column
 
             var column = [];
 
-            for (var _i = 0; _i < BOARD_SIZE; _i++) {
+            for (var _i2 = 0; _i2 < BOARD_SIZE; _i2++) {
                 // Row
                 column.push(String.fromCharCode(65 + Math.floor(Math.random() * 25)));
             }
@@ -133,8 +142,8 @@ function Board(props) {
         }
 
         // Insert words
-        for (var _i2 = 0; _i2 < props.words.length; _i2++) {
-            insertWord(props.words[_i2]);
+        for (var _i3 = 0; _i3 < props.words.length; _i3++) {
+            insertWord(props.words[_i3]);
         }setBoard(board);
     };
 
@@ -224,16 +233,16 @@ function Board(props) {
                         board[coords1[0].x + i][coords1[0].y] = word[Math.abs(i - reverse)];
                     } else if (coords1[0].x === coords1[1].x)
                     // Insert word down
-                    for (var _i3 = 0; _i3 < word.length; _i3++) {
-                        board[coords1[0].x][coords1[0].y + _i3] = word[Math.abs(_i3 - reverse)];
+                    for (var _i4 = 0; _i4 < word.length; _i4++) {
+                        board[coords1[0].x][coords1[0].y + _i4] = word[Math.abs(_i4 - reverse)];
                     } else if (coords1[0].y < coords1[1].y)
                     // Diagonally down
-                    for (var _i4 = 0; _i4 < word.length; _i4++) {
-                        board[coords1[0].x + _i4][coords1[0].y + _i4] = word[Math.abs(_i4 - reverse)];
+                    for (var _i5 = 0; _i5 < word.length; _i5++) {
+                        board[coords1[0].x + _i5][coords1[0].y + _i5] = word[Math.abs(_i5 - reverse)];
                     } else {
                     // Diagonally up
-                    for (var _i5 = 0; _i5 < word.length; _i5++) {
-                        board[coords1[0].x + _i5][coords1[0].y - _i5] = word[Math.abs(_i5 - reverse)];
+                    for (var _i6 = 0; _i6 < word.length; _i6++) {
+                        board[coords1[0].x + _i6][coords1[0].y - _i6] = word[Math.abs(_i6 - reverse)];
                     }
                 }
 
@@ -247,7 +256,7 @@ function Board(props) {
     // Populate board when new words are received
     useEffect(populateBoard, [props.words]);
 
-    // TODO Make line placement is responsive
+    // TODO Make sure line placement is responsive
     // Check for an answer
     useEffect(function () {
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
@@ -256,9 +265,10 @@ function Board(props) {
         // Check to see if an answer matches
         if (answerIndex !== -1) {
 
-            answers.current += 1;
+            WORD_FOUND_SND.play(); // Play word found sound
+            answers.current += 1; // Keep tracker of answers
 
-            var coords = wordCoords.current[answerIndex];
+            var coords = wordCoords.current[answerIndex]; // Get answer coords
 
             var start = coords[0];
             var end = coords[1];
@@ -276,6 +286,7 @@ function Board(props) {
             var x2 = xUnit * end.x;
             var y2 = yUnit * end.y;
 
+            // Adjust line placement(Adds a different offset needing to place line based on different line directions)
             switch (wordDirection) {
                 case WORD_DIRECTION.HORIZONTAL:
                     y1 += startYOffset;
@@ -309,10 +320,16 @@ function Board(props) {
 
             setLines(newLines);
 
-            console.log(answers.current);
+            // Victory after five seconds
             setTimeout(function () {
                 // Get new words and clear old lines
                 if (answers.current === props.words.length) {
+
+                    // Play win sound
+                    WIN_SND.play();
+
+                    // Reset board
+
                     answers.current = 0;
                     props.newWords();
                     setLines([]);

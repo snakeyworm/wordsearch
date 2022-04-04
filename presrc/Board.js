@@ -13,6 +13,11 @@ const FS_FACTOR = 5 // Used in calculation of responsive font size
 
 const INVALID_WORDS_MSG = "Invalid words provided:"
 
+// Sounds
+const WIN_SND = new Audio( "./assets/sound/win_sound.mp3" )
+const WORD_FOUND_SND = new Audio( "./assets/sound/word_found.mp3" )
+
+
 // Enums
 
 const WORD_DIRECTION = {
@@ -88,7 +93,14 @@ function Board( props ) {
         let requiredArea = 0;
         wordCoords.current = [] // Dump old word coordinate
 
-        console.log( props.words ) // TODO Remove when done
+        // Generate answer sheet
+        let answers = "Answers: "
+        for ( let i=0; i < props.words.length; i++ )
+            answers += props.words[i] + ","
+        
+        // Log answer sheet
+        console.log( answers )
+
 
         // Ensure words are correct length
         props.words.forEach( i => {
@@ -251,7 +263,7 @@ function Board( props ) {
     // Populate board when new words are received
     useEffect( populateBoard, [ props.words ] )
 
-    // TODO Make line placement is responsive
+    // TODO Make sure line placement is responsive
     // Check for an answer
     useEffect( () => {
         let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
@@ -260,9 +272,10 @@ function Board( props ) {
         // Check to see if an answer matches
         if ( answerIndex !== -1 ) {
             
-            answers.current += 1
+            WORD_FOUND_SND.play() // Play word found sound
+            answers.current += 1 // Keep tracker of answers
 
-            let coords = wordCoords.current[ answerIndex ]
+            let coords = wordCoords.current[ answerIndex ] // Get answer coords
 
             let start = coords[ 0 ]
             let end = coords[ 1 ]
@@ -280,6 +293,7 @@ function Board( props ) {
             let x2 = xUnit * end.x
             let y2 = yUnit * end.y
 
+            // Adjust line placement(Adds a different offset needing to place line based on different line directions)
             switch ( wordDirection ) {
                 case WORD_DIRECTION.HORIZONTAL:
                     y1 += startYOffset
@@ -313,13 +327,20 @@ function Board( props ) {
 
             setLines( newLines )
 
-            console.log( answers.current )
+            // Victory after five seconds
             setTimeout( () => {
                 // Get new words and clear old lines
                 if ( answers.current === props.words.length ) {
+                    
+                    // Play win sound
+                    WIN_SND.play()
+
+                    // Reset board
+
                     answers.current = 0
                     props.newWords()
                     setLines( [] )
+
                 }
             }, 5000 )
 

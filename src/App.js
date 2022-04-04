@@ -10,14 +10,22 @@ var getRandomWords = function () {
                     case 0:
                         _context.next = 2;
                         return fetch(WORD_REQUEST).then(function (response) {
-                            return response.json();
+                            // Continue upon successful request
+                            if (response.status === 200) {
+                                return response.json();
+                            } else {
+                                // Handle Wordnik API error
+                                throw new Error("Wordnik API error");
+                            }
                         }).then(function (data) {
+                            // Parse data from response
                             var words = [];
                             data.forEach(function (element) {
                                 return words.push(element.word.toLowerCase());
                             });
+
                             return words;
-                        });
+                        }).catch(function () {});
 
                     case 2:
                         return _context.abrupt("return", _context.sent);
@@ -41,14 +49,10 @@ var getRandomWords = function () {
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 // wordsearch v0.0.1
-// TODO Diagonal word red lines don't meet last letter
-// TODO Down diagonal word red lines are not accurate
-// TODO Reset board when won and alert player of victory
 // TODO Handle wordnik api error
 
 import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { NoEmitOnErrorsPlugin } from "webpack";
 import Board, { BOARD_WIDTH, BOARD_SIZE } from "./Board";
 
 // Constants
@@ -67,7 +71,13 @@ var WORD_MIN_LENGTH = 3; // Minmum length of genrate word
 var WORD_COUNT = 4; // Number of words to generate
 var WORD_REQUEST = "https://api.wordnik.com/v4/words.json/randomWords?limit=" + WORD_COUNT + "&minLength=" + WORD_MIN_LENGTH + "&maxLength=" + BOARD_SIZE + "&includePartOfSpeech=noun,verb,adjective,adverb&api_key=73v51oy38g5q0jwfh5cmgxsmoi8jpu0ma88xyctfhv1iuf559";
 
+var API_TRIS = 50; // Attemtps to use wordnik before API failure is accepted
+
 var styles = {
+    container: {
+        height: window.innerHeight,
+        padding: "10px"
+    },
     form: {
         display: "flex",
         flexDirection: "row",
@@ -85,6 +95,17 @@ var styles = {
         // borderRight: "none", TODO Remove if not needed
         borderRadius: "5px",
         fontSize: "180%"
+    },
+    errorContainer: {
+        backgroundColor: "grey",
+        width: window.innerWidth,
+        height: window.innerHeight
+    },
+    errorText: {
+        paddingLeft: "1%",
+        fontWeight: "bold",
+        backgroundColor: "grey",
+        color: "red"
     }
 
     // TODO Make it return random list of words using wordnik
@@ -106,6 +127,11 @@ var styles = {
         words = _useState6[0],
         setWords = _useState6[1];
 
+    var _useState7 = useState(false),
+        _useState8 = _slicedToArray(_useState7, 2),
+        error = _useState8[0],
+        setError = _useState8[1];
+
     var container = useRef(null);
 
     // Handle user input
@@ -126,20 +152,48 @@ var styles = {
     // Get new words
     var newWords = function () {
         var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
+            var words, i;
             return _regeneratorRuntime.wrap(function _callee2$(_context2) {
                 while (1) {
                     switch (_context2.prev = _context2.next) {
                         case 0:
-                            console.log("Get new words");
-                            _context2.t0 = setWords;
-                            _context2.next = 4;
+                            words = void 0;
+
+                            // Attempt to get words  
+
+                            i = 0;
+
+                        case 2:
+                            if (!(i < API_TRIS)) {
+                                _context2.next = 9;
+                                break;
+                            }
+
+                            _context2.next = 5;
                             return getRandomWords();
 
-                        case 4:
-                            _context2.t1 = _context2.sent;
-                            (0, _context2.t0)(_context2.t1);
+                        case 5:
+                            words = _context2.sent;
 
                         case 6:
+                            i++;
+                            _context2.next = 2;
+                            break;
+
+                        case 9:
+                            if (words) {
+                                _context2.next = 12;
+                                break;
+                            }
+
+                            setError(true);
+                            return _context2.abrupt("return");
+
+                        case 12:
+
+                            setWords(words);
+
+                        case 13:
                         case "end":
                             return _context2.stop();
                     }
@@ -154,10 +208,11 @@ var styles = {
 
     useEffect(newWords, []);
 
-    // TODO Finish linear gradient
     useEffect(function () {
-        // Linear gradient
+        // Background color animation
         setInterval(function () {
+            // If there was a game error don't animation background
+            if (!container.current) return;
 
             BG_COLOR[0] += randomIncrement();
             BG_COLOR[1] += randomIncrement();
@@ -166,22 +221,28 @@ var styles = {
             // Reset if color is out of range
             for (var i = 0; i < BG_COLOR.length; i++) {
                 if (BG_COLOR[i] > 255 || BG_COLOR[i] < 0) BG_COLOR[i] = Math.random() * 255 + 1;
-            } // Update gradient
+            } // Update background
             container.current.style.backgroundColor = "rgb( " + BG_COLOR[0] + ", " + BG_COLOR[1] + ", " + BG_COLOR[2] + " )";
         }, 250);
     }, []);
 
+    // Return error message if there is an error
+    if (error) return React.createElement(
+        "div",
+        { style: styles.errorContainer },
+        React.createElement(
+            "h1",
+            { style: styles.errorText },
+            "Error loading game"
+        )
+    );
+
     return React.createElement(
         "div",
-        { ref: container, style: {
-                height: window.innerHeight,
-                padding: "10px"
-            } },
+        { ref: container, style: styles.container },
         React.createElement(
             "div",
-            {
-                style: styles.form
-            },
+            { style: styles.form },
             React.createElement("input", {
                 style: styles.inputField,
                 type: "text",
