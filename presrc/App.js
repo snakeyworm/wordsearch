@@ -60,13 +60,11 @@ const styles = {
     },
 }
 
-// TODO Make it return random list of words using wordnik
+// TODO Add profanity filter
 async function getRandomWords() {
 
-    // TODO minLength and maxLength are character lengths of word(FIX)
     return await fetch( WORD_REQUEST )
-        .then( ( response ) => {
-            // Continue upon successful request
+        .then( ( response ) => { // Continue upon successful request
             if ( response.status === 200 ) {
                 return response.json()
             } else {
@@ -80,7 +78,34 @@ async function getRandomWords() {
             data.forEach( ( element ) => words.push( element.word.toLowerCase() ) )
 
             return words
-        } ).catch( () => { } )
+        } ).then( ( words ) => { // Filter profanity
+            fetch( "https://neutrinoapi.net/bad-word-filter", {
+                method: "POST",
+                body: JSON.stringify( {
+                    "user-id": "snakeyworm",
+                    "api-key": "bN9Kp6KnL0eWVCrEIFioDzbGA2keiaw2zyFZwYjT9o4Ji7Jr",
+                    ip: "35.129.107.98",
+                    content: words.join( "," ),
+                } ),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            } ).then( ( response ) => { // Continue upon successful request
+                if ( response.status === 200 ) {
+                    return response.json()
+                } else {
+                    // Handle Wordnik API error
+                    throw new Error( "Neutrino API error" )
+                }
+            } ).then( ( data ) => {
+                console.log( data )
+                // Retry if there is profanity
+                if ( data[ "is-bad" ] )
+                    throw new Error( "Profanity error" )
+            } )
+            return words
+        } )
+        .catch( () => { } )
 
 }
 
@@ -116,6 +141,7 @@ function App() {
         // Attempt to get words  
         for ( let i = 0; i < API_TRIS; i++ ) {
             words = await getRandomWords()
+            console.log( words )
             // Break if API request was successful
             if ( words )
                 break

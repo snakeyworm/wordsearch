@@ -25,6 +25,33 @@ var getRandomWords = function () {
                             });
 
                             return words;
+                        }).then(function (words) {
+                            // Filter profanity
+                            fetch("https://neutrinoapi.net/bad-word-filter", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    "user-id": "snakeyworm",
+                                    "api-key": "bN9Kp6KnL0eWVCrEIFioDzbGA2keiaw2zyFZwYjT9o4Ji7Jr",
+                                    ip: "35.129.107.98",
+                                    content: words.join(",")
+                                }),
+                                headers: {
+                                    "Content-type": "application/json; charset=UTF-8"
+                                }
+                            }).then(function (response) {
+                                // Continue upon successful request
+                                if (response.status === 200) {
+                                    return response.json();
+                                } else {
+                                    // Handle Wordnik API error
+                                    throw new Error("Neutrino API error");
+                                }
+                            }).then(function (data) {
+                                console.log(data);
+                                // Retry if there is profanity
+                                if (data["is-bad"]) throw new Error("Profanity error");
+                            });
+                            return words;
                         }).catch(function () {});
 
                     case 2:
@@ -110,7 +137,7 @@ var styles = {
         fontFamily: "Helvetica"
     }
 
-    // TODO Make it return random list of words using wordnik
+    // TODO Add profanity filter
 };function App() {
     var _this = this;
 
@@ -167,7 +194,7 @@ var styles = {
 
                         case 2:
                             if (!(i < API_TRIS)) {
-                                _context2.next = 11;
+                                _context2.next = 12;
                                 break;
                             }
 
@@ -177,32 +204,35 @@ var styles = {
                         case 5:
                             words = _context2.sent;
 
+                            console.log(words);
+                            // Break if API request was successful
+
                             if (!words) {
-                                _context2.next = 8;
+                                _context2.next = 9;
                                 break;
                             }
 
-                            return _context2.abrupt("break", 11);
+                            return _context2.abrupt("break", 12);
 
-                        case 8:
+                        case 9:
                             i++;
                             _context2.next = 2;
                             break;
 
-                        case 11:
+                        case 12:
                             if (words) {
-                                _context2.next = 14;
+                                _context2.next = 15;
                                 break;
                             }
 
                             setError(true);
                             return _context2.abrupt("return");
 
-                        case 14:
+                        case 15:
 
                             setWords(words);
 
-                        case 15:
+                        case 16:
                         case "end":
                             return _context2.stop();
                     }
