@@ -97,15 +97,17 @@ var styles = {
         fontSize: "180%"
     },
     errorContainer: {
-        backgroundColor: "grey",
+        display: "flex",
+        backgroundColor: "#121212",
         width: window.innerWidth,
         height: window.innerHeight
     },
     errorText: {
         paddingLeft: "1%",
         fontWeight: "bold",
-        backgroundColor: "grey",
-        color: "red"
+        backgroundColor: "#121212",
+        color: "red",
+        fontFamily: "Helvetica"
     }
 
     // TODO Make it return random list of words using wordnik
@@ -165,7 +167,7 @@ var styles = {
 
                         case 2:
                             if (!(i < API_TRIS)) {
-                                _context2.next = 9;
+                                _context2.next = 11;
                                 break;
                             }
 
@@ -175,25 +177,32 @@ var styles = {
                         case 5:
                             words = _context2.sent;
 
-                        case 6:
+                            if (!words) {
+                                _context2.next = 8;
+                                break;
+                            }
+
+                            return _context2.abrupt("break", 11);
+
+                        case 8:
                             i++;
                             _context2.next = 2;
                             break;
 
-                        case 9:
+                        case 11:
                             if (words) {
-                                _context2.next = 12;
+                                _context2.next = 14;
                                 break;
                             }
 
                             setError(true);
                             return _context2.abrupt("return");
 
-                        case 12:
+                        case 14:
 
                             setWords(words);
 
-                        case 13:
+                        case 15:
                         case "end":
                             return _context2.stop();
                     }
@@ -233,7 +242,7 @@ var styles = {
         React.createElement(
             "h1",
             { style: styles.errorText },
-            "Error loading game"
+            "Error loading game - Please refresh"
         )
     );
 

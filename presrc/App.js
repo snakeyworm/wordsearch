@@ -46,15 +46,17 @@ const styles = {
         fontSize: "180%",
     },
     errorContainer: {
-        backgroundColor: "grey",
+        display: "flex",
+        backgroundColor: "#121212",
         width: window.innerWidth,
         height: window.innerHeight,
     },
     errorText: {
         paddingLeft: "1%",
         fontWeight: "bold",
-        backgroundColor: "grey",
+        backgroundColor: "#121212",
         color: "red",
+        fontFamily: "Helvetica",
     },
 }
 
@@ -114,10 +116,9 @@ function App() {
         // Attempt to get words  
         for ( let i = 0; i < API_TRIS; i++ ) {
             words = await getRandomWords()
-            // TODO Uncomment when done making error message
             // Break if API request was successful
-            // if ( words )
-            // break
+            if ( words )
+                break
         }
 
         // Error if words are not found
@@ -159,7 +160,9 @@ function App() {
     if ( error )
         return (
             <div style={styles.errorContainer}>
-                <h1 style={styles.errorText}>Error loading game</h1>
+                <h1 style={styles.errorText}>
+                    Error loading game - Please refresh
+                </h1>
             </div>
         )
 
