@@ -30,18 +30,29 @@ var getRandomWords = function () {
                             fetch("https://neutrinoapi.net/bad-word-filter", {
                                 method: "POST",
                                 body: JSON.stringify({
+<<<<<<< HEAD
                                     "user-id": "wormysnake",
                                     "api-key": "Lv7LEW5dnatOewWbddZtnns4phzo0OtFyREzW3QrrchjbvyN",
+=======
+                                    "user-id": "snakeyworm",
+                                    "api-key": "bN9Kp6KnL0eWVCrEIFioDzbGA2keiaw2zyFZwYjT9o4Ji7Jr",
+>>>>>>> c6ad0439364bf1cbfe2e4dbc6bb931d75c9cab58
                                     ip: "35.129.107.98",
                                     content: words.join(",")
                                 }),
                                 headers: {
                                     "Content-type": "application/json; charset=UTF-8"
+<<<<<<< HEAD
                                 },
                                 mode: "no-cors"
                             }).then(function (response) {
                                 // Continue upon successful request
                                 console.log(response);
+=======
+                                }
+                            }).then(function (response) {
+                                // Continue upon successful request
+>>>>>>> c6ad0439364bf1cbfe2e4dbc6bb931d75c9cab58
                                 if (response.status === 200) {
                                     return response.json();
                                 } else {
