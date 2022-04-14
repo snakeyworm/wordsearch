@@ -79,32 +79,20 @@ async function getRandomWords() {
 
             return words
         } ).then( ( words ) => { // Filter profanity
-            fetch( "https://neutrinoapi.net/bad-word-filter", {
-                method: "POST",
-                body: JSON.stringify( {
-                    "user-id": "wormysnake",
-                    "api-key": "Lv7LEW5dnatOewWbddZtnns4phzo0OtFyREzW3QrrchjbvyN",
-                    ip: "35.129.107.98",
-                    content: words.join( "," ),
-                } ),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                },
-                mode: "no-cors"
-            } ).then( ( response ) => { // Continue upon successful request
-                console.log( response )
-                if ( response.status === 200 ) {
-                    return response.json()
-                } else {
-                    // Handle Wordnik API error
-                    throw new Error( "Neutrino API error" )
-                }
-            } ).then( ( data ) => {
-                console.log( data )
-                // Retry if there is profanity
-                if ( data[ "is-bad" ] )
-                    throw new Error( "Profanity error" )
-            } )
+            fetch( `http://127.0.0.1:80/?content=${words.join( "," )}` ).then(
+                ( response ) => { // Continue upon successful request
+                    console.log( response )
+                    if ( response.status === 200 ) {
+                        return response.json()
+                    } else {
+                        // Handle Wordnik API error
+                        throw new Error( "Neutrino API error" )
+                    }
+                } ).then( ( data ) => {
+                    // Retry if there is profanity
+                    if ( data )
+                        throw new Error( "Profanity error" )
+                } )
             return words
         } )
         .catch( () => { } )

@@ -1,0 +1,9 @@
+{
+    "emeraldwalk.runonsave": {
+        "commands": [ 
+            {
+                "cmd": "npm run bundle-dev",
+            }
+        ]
+    }
+}

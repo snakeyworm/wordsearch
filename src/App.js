@@ -27,32 +27,9 @@ var getRandomWords = function () {
                             return words;
                         }).then(function (words) {
                             // Filter profanity
-                            fetch("https://neutrinoapi.net/bad-word-filter", {
-                                method: "POST",
-                                body: JSON.stringify({
-<<<<<<< HEAD
-                                    "user-id": "wormysnake",
-                                    "api-key": "Lv7LEW5dnatOewWbddZtnns4phzo0OtFyREzW3QrrchjbvyN",
-=======
-                                    "user-id": "snakeyworm",
-                                    "api-key": "bN9Kp6KnL0eWVCrEIFioDzbGA2keiaw2zyFZwYjT9o4Ji7Jr",
->>>>>>> c6ad0439364bf1cbfe2e4dbc6bb931d75c9cab58
-                                    ip: "35.129.107.98",
-                                    content: words.join(",")
-                                }),
-                                headers: {
-                                    "Content-type": "application/json; charset=UTF-8"
-<<<<<<< HEAD
-                                },
-                                mode: "no-cors"
-                            }).then(function (response) {
+                            fetch("http://127.0.0.1:80/?content=" + words.join(",")).then(function (response) {
                                 // Continue upon successful request
                                 console.log(response);
-=======
-                                }
-                            }).then(function (response) {
-                                // Continue upon successful request
->>>>>>> c6ad0439364bf1cbfe2e4dbc6bb931d75c9cab58
                                 if (response.status === 200) {
                                     return response.json();
                                 } else {
@@ -60,9 +37,8 @@ var getRandomWords = function () {
                                     throw new Error("Neutrino API error");
                                 }
                             }).then(function (data) {
-                                console.log(data);
                                 // Retry if there is profanity
-                                if (data["is-bad"]) throw new Error("Profanity error");
+                                if (data) throw new Error("Profanity error");
                             });
                             return words;
                         }).catch(function () {});
