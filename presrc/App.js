@@ -60,6 +60,8 @@ const styles = {
     },
 }
 
+let firstTime = true
+
 // TODO Add profanity filter
 async function getRandomWords() {
 
@@ -91,6 +93,7 @@ async function getRandomWords() {
                 } ).then( ( data ) => {
                     // Retry if there is profanity
                     if ( data )
+                        // TODO Just errors doesn't reset words fix
                         throw new Error( "Profanity error" )
                 } )
             return words
