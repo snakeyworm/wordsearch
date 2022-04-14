@@ -3,12 +3,14 @@ import _regeneratorRuntime from "babel-runtime/regenerator";
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var getRandomWords = function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee() {
-        return _regeneratorRuntime.wrap(function _callee$(_context) {
+    var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
+        var _this = this;
+
+        return _regeneratorRuntime.wrap(function _callee2$(_context2) {
             while (1) {
-                switch (_context.prev = _context.next) {
+                switch (_context2.prev = _context2.next) {
                     case 0:
-                        _context.next = 2;
+                        _context2.next = 2;
                         return fetch(WORD_REQUEST).then(function (response) {
                             // Continue upon successful request
                             if (response.status === 200) {
@@ -25,33 +27,64 @@ var getRandomWords = function () {
                             });
 
                             return words;
-                        }).then(function (words) {
-                            // Filter profanity
-                            fetch("http://127.0.0.1:80/?content=" + words.join(",")).then(function (response) {
-                                // Continue upon successful request
-                                console.log(response);
-                                if (response.status === 200) {
-                                    return response.json();
-                                } else {
-                                    // Handle Wordnik API error
-                                    throw new Error("Neutrino API error");
-                                }
-                            }).then(function (data) {
-                                // Retry if there is profanity
-                                if (data) throw new Error("Profanity error");
-                            });
-                            return words;
-                        }).catch(function () {});
+                        }).then(function () {
+                            var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(words) {
+                                var profane;
+                                return _regeneratorRuntime.wrap(function _callee$(_context) {
+                                    while (1) {
+                                        switch (_context.prev = _context.next) {
+                                            case 0:
+                                                _context.next = 2;
+                                                return fetch("http://127.0.0.1:80/?content=" + words.join(",")).then(function (response) {
+                                                    // Continue upon successful request
+                                                    console.log(response);
+                                                    if (response.status === 200) {
+                                                        return response.json();
+                                                    } else {
+                                                        // Handle Wordnik API error
+                                                        throw new Error("Neutrino API error");
+                                                    }
+                                                }).then(function (data) {
+                                                    // Retry if there is profanity
+                                                    if (data) return true;
+                                                    return false;
+                                                });
+
+                                            case 2:
+                                                profane = _context.sent;
+
+                                                if (!profane) {
+                                                    _context.next = 5;
+                                                    break;
+                                                }
+
+                                                return _context.abrupt("return");
+
+                                            case 5:
+                                                return _context.abrupt("return", words);
+
+                                            case 6:
+                                            case "end":
+                                                return _context.stop();
+                                        }
+                                    }
+                                }, _callee, _this);
+                            }));
+
+                            return function (_x) {
+                                return _ref2.apply(this, arguments);
+                            };
+                        }()).catch(function () {});
 
                     case 2:
-                        return _context.abrupt("return", _context.sent);
+                        return _context2.abrupt("return", _context2.sent);
 
                     case 3:
                     case "end":
-                        return _context.stop();
+                        return _context2.stop();
                 }
             }
-        }, _callee, this);
+        }, _callee2, this);
     }));
 
     return function getRandomWords() {
@@ -65,7 +98,6 @@ var getRandomWords = function () {
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 // wordsearch v0.0.1
-// TODO Handle wordnik api error
 
 import React, { useState, useRef, useEffect } from "react";
 import ReactDOM from "react-dom";
@@ -125,10 +157,10 @@ var styles = {
         color: "red",
         fontFamily: "Helvetica"
     }
+};
 
-    // TODO Add profanity filter
-};function App() {
-    var _this = this;
+function App() {
+    var _this2 = this;
 
     var _useState = useState(""),
         _useState2 = _slicedToArray(_useState, 2),
@@ -169,11 +201,11 @@ var styles = {
 
     // Get new words
     var newWords = function () {
-        var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
+        var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee3() {
             var words, i;
-            return _regeneratorRuntime.wrap(function _callee2$(_context2) {
+            return _regeneratorRuntime.wrap(function _callee3$(_context3) {
                 while (1) {
-                    switch (_context2.prev = _context2.next) {
+                    switch (_context3.prev = _context3.next) {
                         case 0:
                             words = void 0;
 
@@ -183,39 +215,40 @@ var styles = {
 
                         case 2:
                             if (!(i < API_TRIS)) {
-                                _context2.next = 12;
+                                _context3.next = 12;
                                 break;
                             }
 
-                            _context2.next = 5;
+                            _context3.next = 5;
                             return getRandomWords();
 
                         case 5:
-                            words = _context2.sent;
+                            words = _context3.sent;
 
                             console.log(words);
+
                             // Break if API request was successful
 
                             if (!words) {
-                                _context2.next = 9;
+                                _context3.next = 9;
                                 break;
                             }
 
-                            return _context2.abrupt("break", 12);
+                            return _context3.abrupt("break", 12);
 
                         case 9:
                             i++;
-                            _context2.next = 2;
+                            _context3.next = 2;
                             break;
 
                         case 12:
                             if (words) {
-                                _context2.next = 15;
+                                _context3.next = 15;
                                 break;
                             }
 
                             setError(true);
-                            return _context2.abrupt("return");
+                            return _context3.abrupt("return");
 
                         case 15:
 
@@ -223,14 +256,14 @@ var styles = {
 
                         case 16:
                         case "end":
-                            return _context2.stop();
+                            return _context3.stop();
                     }
                 }
-            }, _callee2, _this);
+            }, _callee3, _this2);
         }));
 
         return function newWords() {
-            return _ref2.apply(this, arguments);
+            return _ref3.apply(this, arguments);
         };
     }();
 

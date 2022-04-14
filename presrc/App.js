@@ -1,6 +1,5 @@
 
 // wordsearch v0.0.1
-// TODO Handle wordnik api error
 
 import React, { useState, useRef, useEffect, } from "react"
 import ReactDOM from "react-dom"
@@ -60,7 +59,6 @@ const styles = {
     },
 }
 
-// TODO Add profanity filter
 async function getRandomWords() {
 
     return await fetch( WORD_REQUEST )
@@ -78,8 +76,8 @@ async function getRandomWords() {
             data.forEach( ( element ) => words.push( element.word.toLowerCase() ) )
 
             return words
-        } ).then( ( words ) => { // Filter profanity
-            fetch( `http://127.0.0.1:80/?content=${words.join( "," )}` ).then(
+        } ).then( async ( words ) => { // Filter profanity
+            let profane = await fetch( `http://127.0.0.1:80/?content=${words.join( "," )}` ).then(
                 ( response ) => { // Continue upon successful request
                     console.log( response )
                     if ( response.status === 200 ) {
@@ -91,8 +89,11 @@ async function getRandomWords() {
                 } ).then( ( data ) => {
                     // Retry if there is profanity
                     if ( data )
-                        throw new Error( "Profanity error" )
+                        return true
+                    return false
                 } )
+            if ( profane )
+                return
             return words
         } )
         .catch( () => { } )
@@ -132,6 +133,7 @@ function App() {
         for ( let i = 0; i < API_TRIS; i++ ) {
             words = await getRandomWords()
             console.log( words )
+
             // Break if API request was successful
             if ( words )
                 break

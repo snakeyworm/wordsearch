@@ -7,7 +7,6 @@ import { doIntersect, Point } from "./mutils";
 
 // Constants
 
-// TODO Allow user to input a board size for difficulty
 var BOARD_SIZE = 11;
 var BOARD_AREA = BOARD_SIZE * BOARD_SIZE;
 var BOARD_WIDTH = 0.5;
@@ -84,7 +83,7 @@ function Board(props) {
         lines = _useState4[0],
         setLines = _useState4[1];
 
-    var answers = useRef(0);
+    var answers = useRef([]);
 
     var _useState5 = useState({
         // Calculate board dimensions
@@ -178,7 +177,6 @@ function Board(props) {
 
                 start = new Point(random(BOARD_SIZE - word.length + 1), random(BOARD_SIZE - word.length + 1));
 
-                // TODO Maybe have wordDirection determine up/down not available space
                 if (random(2) && start.y + word.length - 1 - (word.length - 1) >= 0) {
                     // Diagonal down
                     end = new Point(start.x + word.length - 1, start.y + word.length - 1);
@@ -226,7 +224,6 @@ function Board(props) {
                 // Reverse 
                 if (random(2) && random(2)) reverse = word.length - 1;
 
-                // TODO Maybe make a switch statement
                 if (coords1[0].y === coords1[1].y)
                     // Insert word across
                     for (var i = 0; i < word.length; i++) {
@@ -251,12 +248,64 @@ function Board(props) {
         }
     };
 
+    // Make line tag for given coordinate
+    var makeLine = function makeLine(coords) {
+
+        var start = coords[0];
+        var end = coords[1];
+        var wordDirection = coords[2];
+
+        var xUnit = styleOffset.width / BOARD_SIZE; // X-Unit to move each line by
+        // TODO Not accurate with all screen sizes fix soon
+        var yUnit = styleOffset.height / (BOARD_SIZE - 0.325); // Y-Unit to move each line by
+        var startXOffset = styleOffset.width / BOARD_SIZE / 2; // X-Offset of vertically placed lines
+        var startYOffset = styleOffset.height * 0.0325; // Y-Offset of horizontally placed lines
+
+        // Line coordinates
+        var x1 = xUnit * start.x;
+        var y1 = yUnit * start.y;
+        var x2 = xUnit * end.x;
+        var y2 = yUnit * end.y;
+
+        // Adjust line placement(Adds a different offset needing to place line based on different line directions)
+        switch (wordDirection) {
+            case WORD_DIRECTION.HORIZONTAL:
+                y1 += startYOffset;
+                y2 += startYOffset;
+                break;
+            case WORD_DIRECTION.VERTICAL:
+                x1 += startXOffset;
+                x2 += startXOffset;
+                break;
+            case WORD_DIRECTION.DIAGONAL_UP:
+                x2 += xUnit;
+                y1 += yUnit;
+                y1 -= styleOffset.height * 0.015;
+                y2 -= styleOffset.height * 0.015;
+                break;
+            case WORD_DIRECTION.DIAGONAL_DOWN:
+                x2 += xUnit;
+                y2 += yUnit;
+                y1 -= styleOffset.height * 0.015;
+                y2 -= styleOffset.height * 0.015;
+                break;
+        }
+
+        return React.createElement("line", {
+            x1: x1,
+            y1: y1,
+            x2: x2,
+            y2: y2,
+            style: styles.wordStroke
+        });
+    };
+
     useEffect(populateBoard, []);
 
     // Populate board when new words are received
     useEffect(populateBoard, [props.words]);
 
-    // TODO Make sure line placement is responsive
+    // TODO Lines don't resize with board when screen is resized
     // Check for an answer
     useEffect(function () {
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
@@ -266,71 +315,22 @@ function Board(props) {
         if (answerIndex !== -1) {
 
             WORD_FOUND_SND.play(); // Play word found sound
-            answers.current += 1; // Keep tracker of answers
+            answers.current.push(answerIndex); // Keep tracker of answers
 
-            var coords = wordCoords.current[answerIndex]; // Get answer coords
-
-            var start = coords[0];
-            var end = coords[1];
-            var wordDirection = coords[2];
-
-            var xUnit = styleOffset.width / BOARD_SIZE; // X-Unit to move each line by
-            // TODO Not accurate with all screen sizes fix soon
-            var yUnit = styleOffset.height / (BOARD_SIZE - 0.325); // Y-Unit to move each line by
-            var startXOffset = styleOffset.width / BOARD_SIZE / 2; // X-Offset of vertically placed lines
-            var startYOffset = styleOffset.height * 0.0325; // Y-Offset of horizontally placed lines
-
-            // Line coordinates
-            var x1 = xUnit * start.x;
-            var y1 = yUnit * start.y;
-            var x2 = xUnit * end.x;
-            var y2 = yUnit * end.y;
-
-            // Adjust line placement(Adds a different offset needing to place line based on different line directions)
-            switch (wordDirection) {
-                case WORD_DIRECTION.HORIZONTAL:
-                    y1 += startYOffset;
-                    y2 += startYOffset;
-                    break;
-                case WORD_DIRECTION.VERTICAL:
-                    x1 += startXOffset;
-                    x2 += startXOffset;
-                    break;
-                case WORD_DIRECTION.DIAGONAL_UP:
-                    x2 += xUnit;
-                    y1 += yUnit;
-                    y1 -= styleOffset.height * 0.015;
-                    y2 -= styleOffset.height * 0.015;
-                    break;
-                case WORD_DIRECTION.DIAGONAL_DOWN:
-                    x2 += xUnit;
-                    y2 += yUnit;
-                    y1 -= styleOffset.height * 0.015;
-                    y2 -= styleOffset.height * 0.015;
-                    break;
-            }
-
-            newLines.push(React.createElement("line", {
-                x1: x1,
-                y1: y1,
-                x2: x2,
-                y2: y2,
-                style: styles.wordStroke
-            }));
-
+            newLines.push(makeLine(wordCoords.current[answerIndex]));
             setLines(newLines);
 
             // Victory after five seconds
             setTimeout(function () {
                 // Get new words and clear old lines
-                if (answers.current === props.words.length) {
+                if (answers.current.length === props.words.length) {
 
                     // Play win sound
                     WIN_SND.play();
 
                     // Reset board
 
-                    answers.current = 0;
+                    answers.current = [];
                     props.newWords();
                     setLines([]);
                 }
@@ -344,6 +344,16 @@ function Board(props) {
             width: window.screen.width * BOARD_WIDTH,
             height: window.innerHeight * BOARD_HEIGHT
         });
+
+        var newLines = [];
+        setLines([]);
+
+        for (var i = 0; i < answers.current.length; i++) {
+            newLines.push(makeLine(wordCoords.current[answer.current[i]]));
+        }
+
+        console.log(newLines);
+        setLines(newLines);
     };
 
     var xCount = 0;

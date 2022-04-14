@@ -4,7 +4,6 @@ import { doIntersect, Point } from "./mutils";
 
 // Constants
 
-// TODO Allow user to input a board size for difficulty
 const BOARD_SIZE = 11
 const BOARD_AREA = BOARD_SIZE * BOARD_SIZE
 const BOARD_WIDTH = 0.5
@@ -73,7 +72,7 @@ function Board( props ) {
 
     let [ board, setBoard ] = useState( [] ) // Board data
     let [ lines, setLines ] = useState( [] )
-    let answers = useRef( 0 )
+    let answers = useRef( [] )
 
     let [ styleOffset, setStyleOffset ] = useState( {
         // Calculate board dimensions
@@ -95,9 +94,9 @@ function Board( props ) {
 
         // Generate answer sheet
         let answers = "Answers: "
-        for ( let i=0; i < props.words.length; i++ )
-            answers += props.words[i] + ","
-        
+        for ( let i = 0; i < props.words.length; i++ )
+            answers += props.words[ i ] + ","
+
         // Log answer sheet
         console.log( answers )
 
@@ -175,7 +174,6 @@ function Board( props ) {
                     random( BOARD_SIZE - word.length + 1 )
                 )
 
-                // TODO Maybe have wordDirection determine up/down not available space
                 if ( random( 2 ) && start.y + word.length - 1 - ( word.length - 1 ) >= 0 ) {
                     // Diagonal down
                     end = new Point( start.x + word.length - 1, start.y + word.length - 1 )
@@ -230,7 +228,6 @@ function Board( props ) {
                 if ( random( 2 ) && random( 2 ) )
                     reverse = word.length - 1
 
-                // TODO Maybe make a switch statement
                 if ( coords1[ 0 ].y === coords1[ 1 ].y )
                     // Insert word across
                     for ( let i = 0; i < word.length; i++ )
@@ -258,12 +255,65 @@ function Board( props ) {
 
     }
 
+    // Make line tag for given coordinate
+    let makeLine = ( coords ) => {
+
+        let start = coords[ 0 ]
+        let end = coords[ 1 ]
+        let wordDirection = coords[ 2 ]
+
+        let xUnit = styleOffset.width / BOARD_SIZE // X-Unit to move each line by
+        // TODO Not accurate with all screen sizes fix soon
+        let yUnit = styleOffset.height / ( BOARD_SIZE - 0.325 ) // Y-Unit to move each line by
+        let startXOffset = styleOffset.width / BOARD_SIZE / 2 // X-Offset of vertically placed lines
+        let startYOffset = styleOffset.height * 0.0325 // Y-Offset of horizontally placed lines
+
+        // Line coordinates
+        let x1 = xUnit * start.x
+        let y1 = yUnit * start.y
+        let x2 = xUnit * end.x
+        let y2 = yUnit * end.y
+
+        // Adjust line placement(Adds a different offset needing to place line based on different line directions)
+        switch ( wordDirection ) {
+            case WORD_DIRECTION.HORIZONTAL:
+                y1 += startYOffset
+                y2 += startYOffset
+                break
+            case WORD_DIRECTION.VERTICAL:
+                x1 += startXOffset
+                x2 += startXOffset
+                break
+            case WORD_DIRECTION.DIAGONAL_UP:
+                x2 += xUnit
+                y1 += yUnit
+                y1 -= styleOffset.height * 0.015
+                y2 -= styleOffset.height * 0.015
+                break
+            case WORD_DIRECTION.DIAGONAL_DOWN:
+                x2 += xUnit
+                y2 += yUnit
+                y1 -= styleOffset.height * 0.015
+                y2 -= styleOffset.height * 0.015
+                break
+        }
+
+        return <line
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
+            style={styles.wordStroke}
+        />
+
+    }
+
     useEffect( populateBoard, [] )
 
     // Populate board when new words are received
     useEffect( populateBoard, [ props.words ] )
 
-    // TODO Make sure line placement is responsive
+    // TODO Lines don't resize with board when screen is resized
     // Check for an answer
     useEffect( () => {
         let answerIndex = props.words.indexOf( props.answer.toLowerCase() )
@@ -271,73 +321,24 @@ function Board( props ) {
 
         // Check to see if an answer matches
         if ( answerIndex !== -1 ) {
-            
+
             WORD_FOUND_SND.play() // Play word found sound
-            answers.current += 1 // Keep tracker of answers
+            answers.current.push( answerIndex ) // Keep tracker of answers
 
-            let coords = wordCoords.current[ answerIndex ] // Get answer coords
-
-            let start = coords[ 0 ]
-            let end = coords[ 1 ]
-            let wordDirection = coords[ 2 ]
-
-            let xUnit = styleOffset.width / BOARD_SIZE // X-Unit to move each line by
-            // TODO Not accurate with all screen sizes fix soon
-            let yUnit = styleOffset.height / ( BOARD_SIZE - 0.325 ) // Y-Unit to move each line by
-            let startXOffset = styleOffset.width / BOARD_SIZE / 2 // X-Offset of vertically placed lines
-            let startYOffset = styleOffset.height * 0.0325 // Y-Offset of horizontally placed lines
-
-            // Line coordinates
-            let x1 = xUnit * start.x
-            let y1 = yUnit * start.y
-            let x2 = xUnit * end.x
-            let y2 = yUnit * end.y
-
-            // Adjust line placement(Adds a different offset needing to place line based on different line directions)
-            switch ( wordDirection ) {
-                case WORD_DIRECTION.HORIZONTAL:
-                    y1 += startYOffset
-                    y2 += startYOffset
-                    break
-                case WORD_DIRECTION.VERTICAL:
-                    x1 += startXOffset
-                    x2 += startXOffset
-                    break
-                case WORD_DIRECTION.DIAGONAL_UP:
-                    x2 += xUnit
-                    y1 += yUnit
-                    y1 -= styleOffset.height * 0.015
-                    y2 -= styleOffset.height * 0.015
-                    break
-                case WORD_DIRECTION.DIAGONAL_DOWN:
-                    x2 += xUnit
-                    y2 += yUnit
-                    y1 -= styleOffset.height * 0.015
-                    y2 -= styleOffset.height * 0.015
-                    break
-            }
-
-            newLines.push( <line
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                style={styles.wordStroke}
-            /> )
-
+            newLines.push( makeLine( wordCoords.current[ answerIndex ] ) )
             setLines( newLines )
 
             // Victory after five seconds
             setTimeout( () => {
                 // Get new words and clear old lines
-                if ( answers.current === props.words.length ) {
-                    
+                if ( answers.current.length === props.words.length ) {
+
                     // Play win sound
                     WIN_SND.play()
 
                     // Reset board
 
-                    answers.current = 0
+                    answers.current = []
                     props.newWords()
                     setLines( [] )
 
@@ -353,6 +354,18 @@ function Board( props ) {
             width: window.screen.width * BOARD_WIDTH,
             height: window.innerHeight * BOARD_HEIGHT,
         } )
+
+        let newLines = []
+        setLines( [] )
+
+        for ( let i = 0; i < answers.current.length; i++ ) {
+            newLines.push( makeLine( wordCoords.current[ answer.current[ i ] ] ) )
+        }
+
+
+        console.log( newLines )
+        setLines( newLines )
+
     }
 
     let xCount = 0
