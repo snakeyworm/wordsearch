@@ -345,14 +345,14 @@ function Board(props) {
             height: window.innerHeight * BOARD_HEIGHT
         });
 
+        // Clear lines
         var newLines = [];
         setLines([]);
 
+        // Redraw lines
         for (var i = 0; i < answers.current.length; i++) {
-            newLines.push(makeLine(wordCoords.current[answer.current[i]]));
-        }
-
-        console.log(newLines);
+            newLines.push(makeLine(wordCoords.current[answers.current[i]]));
+        } // Update lines
         setLines(newLines);
     };
 

@@ -355,15 +355,15 @@ function Board( props ) {
             height: window.innerHeight * BOARD_HEIGHT,
         } )
 
+        // Clear lines
         let newLines = []
         setLines( [] )
 
-        for ( let i = 0; i < answers.current.length; i++ ) {
-            newLines.push( makeLine( wordCoords.current[ answer.current[ i ] ] ) )
-        }
+        // Redraw lines
+        for ( let i = 0; i < answers.current.length; i++ )
+            newLines.push( makeLine( wordCoords.current[ answers.current[ i ] ] ) )
 
-
-        console.log( newLines )
+        // Update lines
         setLines( newLines )
 
     }
