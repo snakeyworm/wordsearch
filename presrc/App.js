@@ -59,12 +59,6 @@ const styles = {
     },
 }
 
-<<<<<<< HEAD
-=======
-let firstTime = true
-
-// TODO Add profanity filter
->>>>>>> af2dc49c99ae7bdaecb3bb10adb3cf61a8756f2b
 async function getRandomWords() {
 
     return await fetch( WORD_REQUEST )
@@ -95,13 +89,8 @@ async function getRandomWords() {
                 } ).then( ( data ) => {
                     // Retry if there is profanity
                     if ( data )
-<<<<<<< HEAD
                         return true
                     return false
-=======
-                        // TODO Just errors doesn't reset words fix
-                        throw new Error( "Profanity error" )
->>>>>>> af2dc49c99ae7bdaecb3bb10adb3cf61a8756f2b
                 } )
             if ( profane )
                 return

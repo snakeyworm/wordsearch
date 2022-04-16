@@ -305,7 +305,6 @@ function Board(props) {
     // Populate board when new words are received
     useEffect(populateBoard, [props.words]);
 
-    // TODO Lines don't resize with board when screen is resized
     // Check for an answer
     useEffect(function () {
         var answerIndex = props.words.indexOf(props.answer.toLowerCase());
@@ -338,6 +337,7 @@ function Board(props) {
         }
     }, [props.answer]);
 
+    // TODO Ensure lines are redrawn on resize
     window.onresize = function () {
         setStyleOffset({
             // Calculate board dimensions

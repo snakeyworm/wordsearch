@@ -2,7 +2,6 @@ import _regeneratorRuntime from "babel-runtime/regenerator";
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-// TODO Add profanity filter
 var getRandomWords = function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee2() {
         var _this = this;
@@ -28,7 +27,6 @@ var getRandomWords = function () {
                             });
 
                             return words;
-<<<<<<< HEAD
                         }).then(function () {
                             var _ref2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(words) {
                                 var profane;
@@ -77,27 +75,6 @@ var getRandomWords = function () {
                                 return _ref2.apply(this, arguments);
                             };
                         }()).catch(function () {});
-=======
-                        }).then(function (words) {
-                            // Filter profanity
-                            fetch("http://127.0.0.1:80/?content=" + words.join(",")).then(function (response) {
-                                // Continue upon successful request
-                                console.log(response);
-                                if (response.status === 200) {
-                                    return response.json();
-                                } else {
-                                    // Handle Wordnik API error
-                                    throw new Error("Neutrino API error");
-                                }
-                            }).then(function (data) {
-                                // Retry if there is profanity
-                                if (data)
-                                    // TODO Just errors doesn't reset words fix
-                                    throw new Error("Profanity error");
-                            });
-                            return words;
-                        }).catch(function () {});
->>>>>>> af2dc49c99ae7bdaecb3bb10adb3cf61a8756f2b
 
                     case 2:
                         return _context2.abrupt("return", _context2.sent);
@@ -182,13 +159,8 @@ var styles = {
     }
 };
 
-<<<<<<< HEAD
 function App() {
     var _this2 = this;
-=======
-var firstTime = true;function App() {
-    var _this = this;
->>>>>>> af2dc49c99ae7bdaecb3bb10adb3cf61a8756f2b
 
     var _useState = useState(""),
         _useState2 = _slicedToArray(_useState, 2),
